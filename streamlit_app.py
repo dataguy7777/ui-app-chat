@@ -117,6 +117,35 @@ import streamlit as st
 # Set the page configuration
 st.set_page_config(page_title="Chat App", layout="wide")
 
+# Initialize session state for conversation
+if 'conversation' not in st.session_state:
+    st.session_state.conversation = [
+        {
+            "sender": "user",
+            "message": "Hello! Can you explain the concept of machine learning?"
+        },
+        {
+            "sender": "bot",
+            "message": "Certainly! Machine learning is a subset of artificial intelligence that focuses on building systems that learn from data to improve their performance over time.",
+            "citations": [
+                {"title": "What is Machine Learning?", "url": "https://www.example.com/machine-learning"},
+                {"title": "Machine Learning Basics", "url": "https://www.example.com/ml-basics"}
+            ]
+        },
+        {
+            "sender": "user",
+            "message": "How does supervised learning differ from unsupervised learning?"
+        },
+        {
+            "sender": "bot",
+            "message": "Supervised learning uses labeled data to train models, whereas unsupervised learning works with unlabeled data to find hidden patterns or intrinsic structures.",
+            "citations": [
+                {"title": "Supervised vs Unsupervised Learning", "url": "https://www.example.com/supervised-unsupervised"},
+                {"title": "Understanding Machine Learning Types", "url": "https://www.example.com/ml-types"}
+            ]
+        }
+    ]
+
 # Custom CSS for styling
 st.markdown("""
     <style>
@@ -156,6 +185,7 @@ st.markdown("""
         border-left: 4px solid #4CAF50;
         padding: 5px 10px;
         margin-top: 10px;
+        font-size: 0.9em;
     }
 
     /* Ensure links are styled appropriately */
@@ -192,7 +222,8 @@ def display_user_message(message):
 def display_bot_message(message, citations):
     citations_html = ""
     for cite in citations:
-        citations_html += f'<div class="citation"><a href="{cite["url"]}" target="_blank">{cite["title"]}</a></div>'
+        # Adding a static prefix "Reference:" before each citation link
+        citations_html += f'<div class="citation"><strong>Reference:</strong> <a href="{cite["url"]}" target="_blank">{cite["title"]}</a></div>'
     
     st.markdown(f"""
     <div class="bot">
@@ -203,33 +234,17 @@ def display_bot_message(message, citations):
     </div>
     """, unsafe_allow_html=True)
 
-# Sample conversation
-conversation = [
-    {
-        "sender": "user",
-        "message": "Hello! Can you explain the concept of machine learning?"
-    },
-    {
-        "sender": "bot",
-        "message": "Certainly! Machine learning is a subset of artificial intelligence that focuses on building systems that learn from data to improve their performance over time.",
+# Function to generate bot response (Placeholder)
+def generate_bot_response(user_message):
+    # Placeholder for actual bot logic. Replace with API calls or model inference.
+    response = {
+        "message": f"You said: {user_message}. (This is a placeholder response.)",
         "citations": [
-            {"title": "What is Machine Learning?", "url": "https://www.example.com/machine-learning"},
-            {"title": "Machine Learning Basics", "url": "https://www.example.com/ml-basics"}
-        ]
-    },
-    {
-        "sender": "user",
-        "message": "How does supervised learning differ from unsupervised learning?"
-    },
-    {
-        "sender": "bot",
-        "message": "Supervised learning uses labeled data to train models, whereas unsupervised learning works with unlabeled data to find hidden patterns or intrinsic structures.",
-        "citations": [
-            {"title": "Supervised vs Unsupervised Learning", "url": "https://www.example.com/supervised-unsupervised"},
-            {"title": "Understanding Machine Learning Types", "url": "https://www.example.com/ml-types"}
+            {"title": "Example Citation 1", "url": "https://www.example.com/doc1"},
+            {"title": "Example Citation 2", "url": "https://www.example.com/doc2"}
         ]
     }
-]
+    return response
 
 # Display the chat interface
 st.title("📨 Chat Application")
@@ -237,7 +252,7 @@ st.title("📨 Chat Application")
 # Chat container
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
-for msg in conversation:
+for msg in st.session_state.conversation:
     if msg["sender"] == "user":
         display_user_message(msg["message"])
     elif msg["sender"] == "bot":
@@ -247,6 +262,29 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 # Input area for new messages
 st.markdown("---")
+user_input = st.text_input("You:", key="user_input")
+
+if st.button("Send"):
+    if user_input.strip() != "":
+        # Append user message to conversation
+        st.session_state.conversation.append({
+            "sender": "user",
+            "message": user_input
+        })
+
+        # Generate bot response
+        bot_response = generate_bot_response(user_input)
+
+        # Append bot response to conversation
+        st.session_state.conversation.append({
+            "sender": "bot",
+            "message": bot_response["message"],
+            "citations": bot_response["citations"]
+        })
+
+        # Clear the input box
+        st.experimental_rerun()
+
 user_input = st.text_input("You:", key="user_input")
 
 # Note: For a fully functional chat app, implement input handling and dynamic responses.
