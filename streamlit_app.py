@@ -109,7 +109,6 @@
 #     st.markdown("**📊 Dataframe Response:**")
 #     st.dataframe(df)
 
-
 # pages/1_Chat_App.py
 
 import streamlit as st
@@ -128,8 +127,16 @@ if 'conversation' not in st.session_state:
             "sender": "bot",
             "message": "Certainly! Machine learning is a subset of artificial intelligence that focuses on building systems that learn from data to improve their performance over time.",
             "citations": [
-                {"title": "What is Machine Learning?", "url": "https://www.example.com/machine-learning"},
-                {"title": "Machine Learning Basics", "url": "https://www.example.com/ml-basics"}
+                {
+                    "description": "For a comprehensive overview, refer to:",
+                    "title": "What is Machine Learning?",
+                    "url": "https://www.example.com/machine-learning"
+                },
+                {
+                    "description": "To understand the basics, see:",
+                    "title": "Machine Learning Basics",
+                    "url": "https://www.example.com/ml-basics"
+                }
             ]
         },
         {
@@ -140,8 +147,16 @@ if 'conversation' not in st.session_state:
             "sender": "bot",
             "message": "Supervised learning uses labeled data to train models, whereas unsupervised learning works with unlabeled data to find hidden patterns or intrinsic structures.",
             "citations": [
-                {"title": "Supervised vs Unsupervised Learning", "url": "https://www.example.com/supervised-unsupervised"},
-                {"title": "Understanding Machine Learning Types", "url": "https://www.example.com/ml-types"}
+                {
+                    "description": "Read more about the differences here:",
+                    "title": "Supervised vs Unsupervised Learning",
+                    "url": "https://www.example.com/supervised-unsupervised"
+                },
+                {
+                    "description": "Understand the types of machine learning in detail:",
+                    "title": "Understanding Machine Learning Types",
+                    "url": "https://www.example.com/ml-types"
+                }
             ]
         }
     ]
@@ -222,8 +237,8 @@ def display_user_message(message):
 def display_bot_message(message, citations):
     citations_html = ""
     for cite in citations:
-        # Adding a static prefix "Reference:" before each citation link
-        citations_html += f'<div class="citation"><strong>Reference:</strong> <a href="{cite["url"]}" target="_blank">{cite["title"]}</a></div>'
+        # Including dynamic description before each citation link
+        citations_html += f'<div class="citation">{cite["description"]} <a href="{cite["url"]}" target="_blank">{cite["title"]}</a></div>'
     
     st.markdown(f"""
     <div class="bot">
@@ -240,8 +255,16 @@ def generate_bot_response(user_message):
     response = {
         "message": f"You said: {user_message}. (This is a placeholder response.)",
         "citations": [
-            {"title": "Example Citation 1", "url": "https://www.example.com/doc1"},
-            {"title": "Example Citation 2", "url": "https://www.example.com/doc2"}
+            {
+                "description": "For more information, visit:",
+                "title": "Example Citation 1",
+                "url": "https://www.example.com/doc1"
+            },
+            {
+                "description": "You can also check out:",
+                "title": "Example Citation 2",
+                "url": "https://www.example.com/doc2"
+            }
         ]
     }
     return response
@@ -284,8 +307,3 @@ if st.button("Send"):
 
         # Clear the input box
         st.experimental_rerun()
-
-user_input = st.text_input("You:", key="user_input")
-
-# Note: For a fully functional chat app, implement input handling and dynamic responses.
-# This mockup displays a static conversation.
