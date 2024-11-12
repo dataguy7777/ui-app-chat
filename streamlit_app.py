@@ -1,7 +1,8 @@
 import streamlit as st
+import pandas as pd
 
 # Set the page configuration
-st.set_page_config(page_title="Chat App with Feedback", layout="wide")
+st.set_page_config(page_title="Chat App with Integrated Feedback", layout="wide")
 
 # Initialize session state for conversation and feedback
 if 'conversation' not in st.session_state:
@@ -144,7 +145,7 @@ def display_user_message(message):
     </div>
     """, unsafe_allow_html=True)
 
-# Function to display bot message with citations and feedback
+# Function to display bot message with citations and integrated feedback
 def display_bot_message(message, citations, msg_index):
     # Display the message and citations
     citations_html = ""
@@ -156,53 +157,55 @@ def display_bot_message(message, citations, msg_index):
         <div class="bot-message">
             {message}
             {citations_html}
-        </div>
-    </div>
+            <div class="feedback-section">
     """, unsafe_allow_html=True)
 
-    # Feedback Section
-    with st.container():
-        st.markdown('<div class="feedback-section">', unsafe_allow_html=True)
+    # Check if feedback already exists for this message
+    existing_feedback = st.session_state.feedback.get(msg_index, {})
+    has_feedback = "rating" in existing_feedback
 
-        # Check if feedback already exists for this message
-        existing_feedback = st.session_state.feedback.get(msg_index, {})
+    if has_feedback:
+        # Display existing feedback
+        rating = existing_feedback.get("rating")
+        comment = existing_feedback.get("comment", "")
+        st.markdown(f"**Your Feedback:** {rating}")
+        if comment:
+            st.markdown(f"**Comment:** {comment}")
+    else:
+        # Display Like and Dislike buttons
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            like = st.button("👍 Like", key=f"like_{msg_index}")
+        with col2:
+            dislike = st.button("👎 Dislike", key=f"dislike_{msg_index}")
 
-        if existing_feedback:
-            # Display existing feedback
-            rating = existing_feedback.get("rating")
-            comment = existing_feedback.get("comment", "")
-            st.markdown(f"**Your Feedback:** {rating}")
-            if comment:
-                st.markdown(f"**Comment:** {comment}")
-        else:
-            # Display Like and Dislike buttons
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                like = st.button("👍 Like", key=f"like_{msg_index}")
-            with col2:
-                dislike = st.button("👎 Dislike", key=f"dislike_{msg_index}")
+        # Handle Like button click
+        if like:
+            st.session_state.feedback[msg_index] = {"rating": "Like", "comment": ""}
+            # No need to call st.experimental_rerun()
 
-            # Handle Like button click
-            if like:
-                st.session_state.feedback[msg_index] = {"rating": "Like", "comment": ""}
-                st.experimental_rerun()
-
-            # Handle Dislike button click
-            if dislike:
-                st.session_state.feedback[msg_index] = {"rating": "Dislike", "comment": ""}
-                st.experimental_rerun()
+        # Handle Dislike button click
+        if dislike:
+            st.session_state.feedback[msg_index] = {"rating": "Dislike", "comment": ""}
+            # No need to call st.experimental_rerun()
 
         # After Like or Dislike is clicked, show comment input
         if msg_index in st.session_state.feedback and st.session_state.feedback[msg_index].get("rating"):
             with st.expander("Add a comment (optional)"):
                 comment = st.text_area("Your Comment:", key=f"comment_{msg_index}")
                 submit_key = f"submit_feedback_{msg_index}"
-                if st.button("Submit Feedback", key=submit_key):
+                submit = st.button("Submit Feedback", key=submit_key)
+                if submit:
+                    # Update the comment in session_state
                     st.session_state.feedback[msg_index]["comment"] = comment.strip()
                     st.success("Thank you for your feedback!")
-                    st.experimental_rerun()
 
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Close the feedback section div
+    st.markdown("""
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Function to generate bot response (Placeholder)
 def generate_bot_response(user_message):
@@ -225,7 +228,7 @@ def generate_bot_response(user_message):
     return response
 
 # Display the chat interface
-st.title("📨 Chat Application with Feedback")
+st.title("📨 Chat Application with Integrated Feedback")
 
 # Chat container
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
@@ -260,7 +263,8 @@ if st.button("Send"):
             "citations": bot_response["citations"]
         })
 
-        # Clear the input box and rerun to display the updated conversation
+        # Clear the input box by resetting the key
+        st.session_state.user_input = ""
         st.experimental_rerun()
 
 # Display collected feedback (Optional: For debugging or admin purposes)
