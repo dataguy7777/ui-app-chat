@@ -24,8 +24,7 @@ if 'conversation' not in st.session_state:
                     "title": "Machine Learning Basics",
                     "url": "https://www.example.com/ml-basics"
                 }
-            ],
-            "feedback": {}  # Initialize feedback for this message
+            ]
         },
         {
             "sender": "user",
@@ -45,8 +44,7 @@ if 'conversation' not in st.session_state:
                     "title": "Understanding Machine Learning Types",
                     "url": "https://www.example.com/ml-types"
                 }
-            ],
-            "feedback": {}  # Initialize feedback for this message
+            ]
         }
     ]
 
@@ -118,15 +116,22 @@ st.markdown("""
 
     /* Feedback section styling */
     .feedback-section {
-        margin-top: 5px;
+        margin-top: 10px;
     }
 
     .feedback-buttons button {
-        margin-right: 5px;
+        margin-right: 10px;
     }
 
     .feedback-comment {
-        margin-top: 5px;
+        margin-top: 10px;
+    }
+
+    /* Success message styling */
+    .success-message {
+        color: green;
+        font-weight: bold;
+        margin-top: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -141,15 +146,6 @@ def display_user_message(message):
 
 # Function to display bot message with citations and feedback
 def display_bot_message(message, citations, msg_index):
-    # Generate unique keys for feedback buttons and comment
-    like_key = f"like_{msg_index}"
-    dislike_key = f"dislike_{msg_index}"
-    comment_key = f"comment_{msg_index}"
-    submit_key = f"submit_{msg_index}"
-
-    # Retrieve existing feedback if any
-    existing_feedback = st.session_state.feedback.get(msg_index, {})
-
     # Display the message and citations
     citations_html = ""
     for cite in citations:
@@ -167,42 +163,45 @@ def display_bot_message(message, citations, msg_index):
     # Feedback Section
     with st.container():
         st.markdown('<div class="feedback-section">', unsafe_allow_html=True)
-        # Like and Dislike buttons
-        col1, col2, col3 = st.columns([1, 1, 2])
-        with col1:
-            like = st.button("👍 Like", key=like_key)
-        with col2:
-            dislike = st.button("👎 Dislike", key=dislike_key)
-        with col3:
-            # If user has already provided feedback, display it
-            if existing_feedback.get("rating"):
-                rating = existing_feedback["rating"]
-                comment = existing_feedback.get("comment", "")
-                st.markdown(f"**Your Feedback:** {rating}")
-                if comment:
-                    st.markdown(f"**Comment:** {comment}")
-            else:
-                # Input for comments
-                comment = st.text_input("Add a comment (optional):", key=comment_key)
-                # Submit feedback
-                submit = st.button("Submit Feedback", key=submit_key)
-                if submit:
-                    if like:
-                        rating = "Like"
-                    elif dislike:
-                        rating = "Dislike"
-                    else:
-                        rating = None
 
-                    if rating:
-                        st.session_state.feedback[msg_index] = {
-                            "rating": rating,
-                            "comment": comment
-                        }
-                        st.success("Thank you for your feedback!")
-                        st.experimental_rerun()
-                    else:
-                        st.warning("Please select Like or Dislike before submitting.")
+        # Check if feedback already exists for this message
+        existing_feedback = st.session_state.feedback.get(msg_index, {})
+
+        if existing_feedback:
+            # Display existing feedback
+            rating = existing_feedback.get("rating")
+            comment = existing_feedback.get("comment", "")
+            st.markdown(f"**Your Feedback:** {rating}")
+            if comment:
+                st.markdown(f"**Comment:** {comment}")
+        else:
+            # Display Like and Dislike buttons
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                like = st.button("👍 Like", key=f"like_{msg_index}")
+            with col2:
+                dislike = st.button("👎 Dislike", key=f"dislike_{msg_index}")
+
+            # Handle Like button click
+            if like:
+                st.session_state.feedback[msg_index] = {"rating": "Like", "comment": ""}
+                st.experimental_rerun()
+
+            # Handle Dislike button click
+            if dislike:
+                st.session_state.feedback[msg_index] = {"rating": "Dislike", "comment": ""}
+                st.experimental_rerun()
+
+        # After Like or Dislike is clicked, show comment input
+        if msg_index in st.session_state.feedback and st.session_state.feedback[msg_index].get("rating"):
+            with st.expander("Add a comment (optional)"):
+                comment = st.text_area("Your Comment:", key=f"comment_{msg_index}")
+                submit_key = f"submit_feedback_{msg_index}"
+                if st.button("Submit Feedback", key=submit_key):
+                    st.session_state.feedback[msg_index]["comment"] = comment.strip()
+                    st.success("Thank you for your feedback!")
+                    st.experimental_rerun()
+
         st.markdown('</div>', unsafe_allow_html=True)
 
 # Function to generate bot response (Placeholder)
@@ -235,7 +234,6 @@ for idx, msg in enumerate(st.session_state.conversation):
     if msg["sender"] == "user":
         display_user_message(msg["message"])
     elif msg["sender"] == "bot":
-        # Pass the current index to associate feedback correctly
         display_bot_message(msg["message"], msg.get("citations", []), idx)
 
 st.markdown('</div>', unsafe_allow_html=True)
@@ -259,8 +257,7 @@ if st.button("Send"):
         st.session_state.conversation.append({
             "sender": "bot",
             "message": bot_response["message"],
-            "citations": bot_response["citations"],
-            "feedback": {}  # Initialize feedback for this message
+            "citations": bot_response["citations"]
         })
 
         # Clear the input box and rerun to display the updated conversation
