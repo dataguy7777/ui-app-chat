@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # Set the page configuration
-st.set_page_config(page_title="Chat App with Integrated Feedback", layout="wide")
+st.set_page_config(page_title="Chat App with Enhanced Feedback", layout="wide")
 
 # Initialize session state for conversation and feedback
 if 'conversation' not in st.session_state:
@@ -72,6 +72,7 @@ st.markdown("""
         border-radius: 10px;
         max-width: 70%;
         margin: 5px 0;
+        position: relative;
     }
 
     /* Align user messages to the left */
@@ -122,6 +123,14 @@ st.markdown("""
 
     .feedback-buttons button {
         margin-right: 10px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 1.2em;
+    }
+
+    .feedback-buttons button:hover {
+        opacity: 0.7;
     }
 
     .feedback-comment {
@@ -171,32 +180,46 @@ def display_bot_message(message, citations, msg_index):
         st.markdown(f"**Your Feedback:** {rating}")
         if comment:
             st.markdown(f"**Comment:** {comment}")
+        # Display uploaded image if exists
+        if "image" in existing_feedback and existing_feedback["image"] is not None:
+            st.image(existing_feedback["image"], caption="Attached Image", use_column_width=True)
     else:
-        # Display Like and Dislike buttons
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            like = st.button("👍 Like", key=f"like_{msg_index}")
-        with col2:
-            dislike = st.button("👎 Dislike", key=f"dislike_{msg_index}")
+        # Display Like and Dislike buttons with a clip button for image upload
+        with st.container():
+            col1, col2, col3 = st.columns([1,1,1])
+            with col1:
+                like = st.button("👍 Like", key=f"like_{msg_index}")
+            with col2:
+                dislike = st.button("👎 Dislike", key=f"dislike_{msg_index}")
+            with col3:
+                attach = st.button("📎", key=f"attach_{msg_index}")  # Clip button
 
         # Handle Like button click
         if like:
-            st.session_state.feedback[msg_index] = {"rating": "Like", "comment": ""}
-            # No need to call st.experimental_rerun()
+            st.session_state.feedback[msg_index] = {"rating": "Like", "comment": "", "image": None}
 
         # Handle Dislike button click
         if dislike:
-            st.session_state.feedback[msg_index] = {"rating": "Dislike", "comment": ""}
-            # No need to call st.experimental_rerun()
+            st.session_state.feedback[msg_index] = {"rating": "Dislike", "comment": "", "image": None}
 
-        # After Like or Dislike is clicked, show comment input
+        # Handle Attach Image button click
+        if attach:
+            uploaded_file = st.file_uploader("Attach an image to your feedback (optional):", type=["png", "jpg", "jpeg"], key=f"uploader_{msg_index}")
+            if uploaded_file is not None:
+                image = uploaded_file.read()
+                st.session_state.feedback[msg_index] = {
+                    "rating": existing_feedback.get("rating", ""),
+                    "comment": "",
+                    "image": uploaded_file
+                }
+
+        # After Like or Dislike is clicked, show comment input and image uploader
         if msg_index in st.session_state.feedback and st.session_state.feedback[msg_index].get("rating"):
             with st.expander("Add a comment (optional)"):
                 comment = st.text_area("Your Comment:", key=f"comment_{msg_index}")
                 submit_key = f"submit_feedback_{msg_index}"
                 submit = st.button("Submit Feedback", key=submit_key)
                 if submit:
-                    # Update the comment in session_state
                     st.session_state.feedback[msg_index]["comment"] = comment.strip()
                     st.success("Thank you for your feedback!")
 
@@ -228,7 +251,7 @@ def generate_bot_response(user_message):
     return response
 
 # Display the chat interface
-st.title("📨 Chat Application with Integrated Feedback")
+st.title("📨 Chat Application with Enhanced Feedback")
 
 # Chat container
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
