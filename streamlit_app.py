@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Set page configuration
-st.set_page_config(page_title="Chat App with Simplified Feedback", layout="wide")
+st.set_page_config(page_title="Chat App with Right-Aligned Feedback", layout="wide")
 
 # Initialize session state for conversation and feedback
 if 'conversation' not in st.session_state:
@@ -32,45 +32,63 @@ st.markdown("""
         border-radius: 10px;
         max-width: 70%;
         margin: 5px 0;
+        text-align: left;
+        align-self: flex-end;
+    }
+    .user-message {
+        background-color: #DCF8C6;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 70%;
+        margin: 5px 0;
+        align-self: flex-start;
+    }
+    .feedback-section {
+        background-color: #E0E0E0;
+        padding: 10px;
+        border-radius: 10px;
+        margin-top: 10px;
     }
     .feedback-buttons {
         display: flex;
         gap: 10px;
-        margin-top: 10px;
+        margin-bottom: 10px;
     }
-    .feedback-section {
-        margin-top: 10px;
-        background-color: #E0E0E0;
-        padding: 10px;
-        border-radius: 10px;
+    .right-align {
+        display: flex;
+        justify-content: flex-end;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # Function to display user message
 def display_user_message(message):
-    st.markdown(f"<div style='background-color:#DCF8C6; padding:10px; border-radius:10px;'>{message}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='user-message'>{message}</div>", unsafe_allow_html=True)
 
 # Function to display bot message and feedback
 def display_bot_message(message, citations, msg_index):
+    # Display bot message box on the right
     st.markdown(f"<div class='bot-message'>{message}</div>", unsafe_allow_html=True)
     for cite in citations:
         st.markdown(f"📖 [{cite['title']}]({cite['url']})")
 
-    # Display Like and Dislike buttons
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        like = st.button("👍 Like", key=f"like_{msg_index}")
-    with col2:
-        dislike = st.button("👎 Dislike", key=f"dislike_{msg_index}")
+    # Feedback buttons inside the bot message box
+    with st.container():
+        st.markdown("<div class='right-align'>", unsafe_allow_html=True)
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            like = st.button("👍 Like", key=f"like_{msg_index}")
+        with col2:
+            dislike = st.button("👎 Dislike", key=f"dislike_{msg_index}")
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # Handle Like/Dislike button clicks
     if like or dislike:
         feedback_type = "Like" if like else "Dislike"
         st.session_state.feedback[msg_index] = {"rating": feedback_type, "comment": "", "image": None}
 
-        # Display feedback input area
-        with st.expander("Provide additional feedback (optional)"):
+        # Display feedback input area directly below the bot message
+        with st.expander("Provide additional feedback (optional)", expanded=True):
             comment = st.text_area("Your Comment:", key=f"comment_{msg_index}")
             uploaded_file = st.file_uploader("Attach an image (optional):", type=["png", "jpg", "jpeg"], key=f"upload_{msg_index}")
 
@@ -89,7 +107,7 @@ def generate_bot_response(user_message):
     }
 
 # Main chat display
-st.title("Chat Application with Simplified Feedback")
+st.title("Chat Application with Right-Aligned Feedback")
 
 # Display conversation
 for idx, msg in enumerate(st.session_state.conversation):
