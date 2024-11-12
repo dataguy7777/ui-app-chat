@@ -119,6 +119,9 @@ st.markdown("""
     /* Feedback section styling */
     .feedback-section {
         margin-top: 10px;
+        background-color: #E0E0E0; /* Grey background for feedback section */
+        padding: 10px;
+        border-radius: 10px;
     }
 
     .feedback-buttons button {
@@ -133,8 +136,14 @@ st.markdown("""
         opacity: 0.7;
     }
 
-    .feedback-comment {
+    .feedback-actions {
+        display: flex;
+        align-items: center;
         margin-top: 10px;
+    }
+
+    .feedback-actions .clip-button {
+        margin-right: 10px;
     }
 
     /* Success message styling */
@@ -184,15 +193,17 @@ def display_bot_message(message, citations, msg_index):
         if "image" in existing_feedback and existing_feedback["image"] is not None:
             st.image(existing_feedback["image"], caption="Attached Image", use_column_width=True)
     else:
-        # Display Like and Dislike buttons with a clip button for image upload
+        # Display Like and Dislike buttons
         with st.container():
-            col1, col2, col3 = st.columns([1,1,1])
+            col1, col2, col3, col4 = st.columns([1,1,1,2])
             with col1:
                 like = st.button("👍 Like", key=f"like_{msg_index}")
             with col2:
                 dislike = st.button("👎 Dislike", key=f"dislike_{msg_index}")
             with col3:
                 attach = st.button("📎", key=f"attach_{msg_index}")  # Clip button
+            with col4:
+                submit = st.button("Submit Feedback", key=f"submit_feedback_{msg_index}")
 
         # Handle Like button click
         if like:
@@ -206,18 +217,34 @@ def display_bot_message(message, citations, msg_index):
         if attach:
             uploaded_file = st.file_uploader("Attach an image to your feedback (optional):", type=["png", "jpg", "jpeg"], key=f"uploader_{msg_index}")
             if uploaded_file is not None:
-                image = uploaded_file.read()
                 st.session_state.feedback[msg_index] = {
                     "rating": existing_feedback.get("rating", ""),
                     "comment": "",
                     "image": uploaded_file
                 }
 
+        # Handle Submit Feedback button click
+        if submit:
+            if msg_index in st.session_state.feedback and st.session_state.feedback[msg_index].get("rating"):
+                with st.container():
+                    comment = st.text_area("Your Comment:", key=f"comment_{msg_index}")
+                    # Optional: Allow users to upload image here as well
+                    # Already handled above
+                    st.session_state.feedback[msg_index]["comment"] = comment.strip()
+                    st.success("Thank you for your feedback!")
+            else:
+                st.warning("Please select Like or Dislike before submitting feedback.")
+
         # After Like or Dislike is clicked, show comment input and image uploader
         if msg_index in st.session_state.feedback and st.session_state.feedback[msg_index].get("rating"):
             with st.expander("Add a comment (optional)"):
-                comment = st.text_area("Your Comment:", key=f"comment_{msg_index}")
-                submit_key = f"submit_feedback_{msg_index}"
+                comment = st.text_area("Your Comment:", key=f"comment_expander_{msg_index}")
+                # Attach image within expander if not already attached
+                if st.session_state.feedback[msg_index].get("image") is None:
+                    uploaded_file = st.file_uploader("Attach an image to your feedback (optional):", type=["png", "jpg", "jpeg"], key=f"uploader_expander_{msg_index}")
+                    if uploaded_file is not None:
+                        st.session_state.feedback[msg_index]["image"] = uploaded_file
+                submit_key = f"submit_feedback_expander_{msg_index}"
                 submit = st.button("Submit Feedback", key=submit_key)
                 if submit:
                     st.session_state.feedback[msg_index]["comment"] = comment.strip()
