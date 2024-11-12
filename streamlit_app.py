@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Set page configuration
-st.set_page_config(page_title="Chat App with Right-Aligned Feedback", layout="wide")
+st.set_page_config(page_title="Chat App with Right-Aligned Feedback and Submit Button", layout="wide")
 
 # Initialize session state for conversation and feedback
 if 'conversation' not in st.session_state:
@@ -72,7 +72,7 @@ def display_bot_message(message, citations, msg_index):
     for cite in citations:
         st.markdown(f"📖 [{cite['title']}]({cite['url']})")
 
-    # Feedback buttons inside the bot message box
+    # Feedback buttons and section inside the bot message box
     with st.container():
         st.markdown("<div class='right-align'>", unsafe_allow_html=True)
         col1, col2 = st.columns([1, 1])
@@ -82,22 +82,23 @@ def display_bot_message(message, citations, msg_index):
             dislike = st.button("👎 Dislike", key=f"dislike_{msg_index}")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Handle Like/Dislike button clicks
-    if like or dislike:
-        feedback_type = "Like" if like else "Dislike"
-        st.session_state.feedback[msg_index] = {"rating": feedback_type, "comment": "", "image": None}
+        # Display feedback input area after Like/Dislike is selected
+        if like or dislike:
+            feedback_type = "Like" if like else "Dislike"
+            st.session_state.feedback[msg_index] = {"rating": feedback_type, "comment": "", "image": None}
 
-        # Display feedback input area directly below the bot message
-        with st.expander("Provide additional feedback (optional)", expanded=True):
-            comment = st.text_area("Your Comment:", key=f"comment_{msg_index}")
-            uploaded_file = st.file_uploader("Attach an image (optional):", type=["png", "jpg", "jpeg"], key=f"upload_{msg_index}")
+            # Feedback input area
+            with st.expander("Provide additional feedback (optional)", expanded=True):
+                comment = st.text_area("Your Comment:", key=f"comment_{msg_index}")
+                uploaded_file = st.file_uploader("Attach an image (optional):", type=["png", "jpg", "jpeg"], key=f"upload_{msg_index}")
 
-            # Update session state with comment and image
-            st.session_state.feedback[msg_index]["comment"] = comment.strip()
-            if uploaded_file is not None:
-                st.session_state.feedback[msg_index]["image"] = uploaded_file
-
-            st.success("Your feedback has been recorded!")
+                # Display Submit Feedback button
+                if st.button("Submit Feedback", key=f"submit_{msg_index}"):
+                    # Update session state with comment and image
+                    st.session_state.feedback[msg_index]["comment"] = comment.strip()
+                    if uploaded_file is not None:
+                        st.session_state.feedback[msg_index]["image"] = uploaded_file
+                    st.success("Thank you for your feedback!")
 
 # Generate bot response (placeholder function)
 def generate_bot_response(user_message):
@@ -107,7 +108,7 @@ def generate_bot_response(user_message):
     }
 
 # Main chat display
-st.title("Chat Application with Right-Aligned Feedback")
+st.title("Chat Application with Right-Aligned Feedback and Submit Button")
 
 # Display conversation
 for idx, msg in enumerate(st.session_state.conversation):
