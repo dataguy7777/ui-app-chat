@@ -1,122 +1,9 @@
-# import streamlit as st
-# import pandas as pd
-
-# # Streamlit page configuration
-# st.set_page_config(
-#     page_title="Text-to-SQL Chatbot Mockup",
-#     page_icon="💬",
-#     layout="wide",
-# )
-
-# # Hide Streamlit's default footer and menu
-# hide_streamlit_style = """
-#             <style>
-#             #MainMenu {visibility: hidden;}
-#             footer {visibility: hidden;}
-#             .css-1aumxhk {padding: 1rem 1rem 10rem;}
-#             </style>
-#             """
-# st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-# # Initialize session state to store the conversation
-# if 'conversation' not in st.session_state:
-#     st.session_state.conversation = []
-
-# # Sidebar for chat history
-# with st.sidebar:
-#     st.title("🗂️ Chat History")
-#     for i, entry in enumerate(st.session_state.conversation):
-#         role = "🧑‍💻 You" if entry['role'] == 'user' else "🤖 Bot"
-#         st.markdown(f"**{role}:** {entry['content']}")
-#     if st.button("Clear Conversation"):
-#         st.session_state.conversation = []
-#         st.experimental_rerun()
-
-# # Main area
-# st.title("💬 Text-to-SQL Chatbot Mockup")
-
-# # Input form for user question
-# with st.form(key='user_input_form'):
-#     user_question = st.text_input("Ask your question here...")
-#     submit_button = st.form_submit_button(label='Send')
-
-# # Function to generate mocked SQL query and dataframe
-# def generate_mocked_response(question):
-#     # Default mocked SQL query and dataframe
-#     mocked_sql_query = f"-- Mocked SQL Query for: '{question}'\nSELECT * FROM sample_table;"
-#     df = pd.DataFrame()
-
-#     # Check if the question is about revenues
-#     if any(keyword in question.lower() for keyword in ['revenue', 'sales', 'income', 'profit']):
-#         # Generate a complex SQL query related to revenues
-#         mocked_sql_query = f"""-- Mocked SQL Query for: '{question}'
-# WITH total_sales AS (
-#     SELECT customer_id, SUM(amount) AS total_amount
-#     FROM sales
-#     WHERE sale_date BETWEEN '2021-01-01' AND '2021-12-31'
-#     GROUP BY customer_id
-# ),
-# customer_info AS (
-#     SELECT c.id, c.name, c.region
-#     FROM customers c
-#     WHERE c.status = 'active'
-# )
-# SELECT ci.name, ci.region, ts.total_amount
-# FROM customer_info ci
-# JOIN total_sales ts ON ci.id = ts.customer_id
-# WHERE ts.total_amount > 10000
-# ORDER BY ts.total_amount DESC;
-# """
-
-#         # Create a sample dataframe corresponding to the complex query
-#         data = {
-#             'Name': ['Alice', 'Bob', 'Charlie'],
-#             'Region': ['North', 'East', 'West'],
-#             'Total_Amount': [15000, 12000, 11000]
-#         }
-#         df = pd.DataFrame(data)
-#     else:
-#         # For other queries, provide a simpler SQL and dataframe
-#         mocked_sql_query = f"""-- Mocked SQL Query for: '{question}'
-# SELECT *
-# FROM sample_table
-# WHERE condition = 'value';
-# """
-#         data = {
-#             'ID': [1, 2, 3],
-#             'Name': ['Sample A', 'Sample B', 'Sample C'],
-#             'Value': [100, 200, 300]
-#         }
-#         df = pd.DataFrame(data)
-    
-#     return mocked_sql_query, df
-
-# # Process user input and display mocked responses
-# if submit_button and user_question:
-#     # Append user input to conversation
-#     st.session_state.conversation.append({'role': 'user', 'content': user_question})
-
-#     # Generate mocked SQL query and dataframe
-#     mocked_sql_query, df = generate_mocked_response(user_question)
-
-#     # Append bot response to conversation
-#     st.session_state.conversation.append({'role': 'bot', 'content': mocked_sql_query})
-
-#     # Display the user's question and mocked responses
-#     st.markdown(f"**🧑‍💻 You:** {user_question}")
-#     st.markdown("**🤖 Bot:**")
-#     st.code(mocked_sql_query, language='sql')
-#     st.markdown("**📊 Dataframe Response:**")
-#     st.dataframe(df)
-
-# pages/1_Chat_App.py
-
 import streamlit as st
 
 # Set the page configuration
-st.set_page_config(page_title="Chat App", layout="wide")
+st.set_page_config(page_title="Chat App with Feedback", layout="wide")
 
-# Initialize session state for conversation
+# Initialize session state for conversation and feedback
 if 'conversation' not in st.session_state:
     st.session_state.conversation = [
         {
@@ -137,7 +24,8 @@ if 'conversation' not in st.session_state:
                     "title": "Machine Learning Basics",
                     "url": "https://www.example.com/ml-basics"
                 }
-            ]
+            ],
+            "feedback": {}  # Initialize feedback for this message
         },
         {
             "sender": "user",
@@ -157,9 +45,14 @@ if 'conversation' not in st.session_state:
                     "title": "Understanding Machine Learning Types",
                     "url": "https://www.example.com/ml-types"
                 }
-            ]
+            ],
+            "feedback": {}  # Initialize feedback for this message
         }
     ]
+
+# Initialize session state for feedback tracking
+if 'feedback' not in st.session_state:
+    st.session_state.feedback = {}  # Key: Message Index, Value: Feedback Data
 
 # Custom CSS for styling
 st.markdown("""
@@ -222,6 +115,19 @@ st.markdown("""
         border-radius: 10px;
         background-color: #FAFAFA;
     }
+
+    /* Feedback section styling */
+    .feedback-section {
+        margin-top: 5px;
+    }
+
+    .feedback-buttons button {
+        margin-right: 5px;
+    }
+
+    .feedback-comment {
+        margin-top: 5px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -233,13 +139,22 @@ def display_user_message(message):
     </div>
     """, unsafe_allow_html=True)
 
-# Function to display bot message with citations
-def display_bot_message(message, citations):
+# Function to display bot message with citations and feedback
+def display_bot_message(message, citations, msg_index):
+    # Generate unique keys for feedback buttons and comment
+    like_key = f"like_{msg_index}"
+    dislike_key = f"dislike_{msg_index}"
+    comment_key = f"comment_{msg_index}"
+    submit_key = f"submit_{msg_index}"
+
+    # Retrieve existing feedback if any
+    existing_feedback = st.session_state.feedback.get(msg_index, {})
+
+    # Display the message and citations
     citations_html = ""
     for cite in citations:
-        # Including dynamic description before each citation link
         citations_html += f'<div class="citation">{cite["description"]} <a href="{cite["url"]}" target="_blank">{cite["title"]}</a></div>'
-    
+
     st.markdown(f"""
     <div class="bot">
         <div class="bot-message">
@@ -248,6 +163,47 @@ def display_bot_message(message, citations):
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # Feedback Section
+    with st.container():
+        st.markdown('<div class="feedback-section">', unsafe_allow_html=True)
+        # Like and Dislike buttons
+        col1, col2, col3 = st.columns([1, 1, 2])
+        with col1:
+            like = st.button("👍 Like", key=like_key)
+        with col2:
+            dislike = st.button("👎 Dislike", key=dislike_key)
+        with col3:
+            # If user has already provided feedback, display it
+            if existing_feedback.get("rating"):
+                rating = existing_feedback["rating"]
+                comment = existing_feedback.get("comment", "")
+                st.markdown(f"**Your Feedback:** {rating}")
+                if comment:
+                    st.markdown(f"**Comment:** {comment}")
+            else:
+                # Input for comments
+                comment = st.text_input("Add a comment (optional):", key=comment_key)
+                # Submit feedback
+                submit = st.button("Submit Feedback", key=submit_key)
+                if submit:
+                    if like:
+                        rating = "Like"
+                    elif dislike:
+                        rating = "Dislike"
+                    else:
+                        rating = None
+
+                    if rating:
+                        st.session_state.feedback[msg_index] = {
+                            "rating": rating,
+                            "comment": comment
+                        }
+                        st.success("Thank you for your feedback!")
+                        st.experimental_rerun()
+                    else:
+                        st.warning("Please select Like or Dislike before submitting.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # Function to generate bot response (Placeholder)
 def generate_bot_response(user_message):
@@ -270,16 +226,17 @@ def generate_bot_response(user_message):
     return response
 
 # Display the chat interface
-st.title("📨 Chat Application")
+st.title("📨 Chat Application with Feedback")
 
 # Chat container
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
-for msg in st.session_state.conversation:
+for idx, msg in enumerate(st.session_state.conversation):
     if msg["sender"] == "user":
         display_user_message(msg["message"])
     elif msg["sender"] == "bot":
-        display_bot_message(msg["message"], msg.get("citations", []))
+        # Pass the current index to associate feedback correctly
+        display_bot_message(msg["message"], msg.get("citations", []), idx)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -298,12 +255,18 @@ if st.button("Send"):
         # Generate bot response
         bot_response = generate_bot_response(user_input)
 
-        # Append bot response to conversation
+        # Append bot response to conversation with initialized feedback
         st.session_state.conversation.append({
             "sender": "bot",
             "message": bot_response["message"],
-            "citations": bot_response["citations"]
+            "citations": bot_response["citations"],
+            "feedback": {}  # Initialize feedback for this message
         })
 
-        # Clear the input box
+        # Clear the input box and rerun to display the updated conversation
         st.experimental_rerun()
+
+# Display collected feedback (Optional: For debugging or admin purposes)
+# Uncomment the following lines if you want to see the feedback data
+# st.sidebar.header("📝 Feedback Data")
+# st.sidebar.json(st.session_state.feedback)
