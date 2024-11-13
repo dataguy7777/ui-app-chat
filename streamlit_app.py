@@ -71,20 +71,15 @@ if st.session_state['show_sources']:
 
     sources = get_sources()
 
-    # Displaying each source with detailed information
+    # Displaying each source with detailed information inside an expander
     for source in sources:
-        st.checkbox(
-            label=f"**{source['title']}**",
-            value=False,
-            key=source['title']
-        )
-        st.markdown(f"Publisher: {source['publisher']}")
-        st.markdown(f"Date: {source['date']}")
-        st.markdown(f"Summary: {source['summary']}")
-        st.markdown(f"[View full article]({source['link']})", unsafe_allow_html=True)
-        st.markdown("---")
+        with st.expander(f"🔗 {source['title']}"):
+            st.markdown(f"**Publisher**: {source['publisher']}")
+            st.markdown(f"**Date**: {source['date']}")
+            st.markdown(f"**Summary**: {source['summary']}")
+            st.markdown(f"[View full article]({source['link']})", unsafe_allow_html=True)
 
-    # Button to close the modal
+    # Button to close the sources view
     if st.button("Close Sources"):
         st.session_state['show_sources'] = False
 
