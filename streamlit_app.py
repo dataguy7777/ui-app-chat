@@ -7,9 +7,6 @@ st.set_page_config(page_title="Powerplexity Enhanced Chat", page_icon="💬", la
 if 'open_modal' not in st.session_state:
     st.session_state['open_modal'] = False
 
-if 'show_sources' not in st.session_state:
-    st.session_state['show_sources'] = False
-
 # Sidebar (optional)
 with st.sidebar:
     st.title("Powerplexity Chat")
@@ -34,54 +31,45 @@ The international community is closely monitoring these developments due to thei
 
 st.markdown(response)
 
-# Button to Open the Sources Modal View
-if st.button("📚 View Sources"):
-    st.session_state['show_sources'] = True
+# Roll/Unroll all sources using st.expander
+with st.expander("📚 Sources", expanded=False):
+    st.markdown("These are the sources for the information provided in the response above. Expand to view the sources:")
 
-# Function to simulate retrieving sources
-def get_sources():
-    return [
-        {
-            "title": "Red Sea crisis - Wikipedia",
-            "link": "https://en.wikipedia.org/wiki/Red_Sea_crisis",
-            "summary": "The Red Sea crisis began in October 2023, involving Houthi movements in Yemen launching attacks at Israel.",
-            "publisher": "Wikipedia",
-            "date": "October 19, 2023"
-        },
-        {
-            "title": "Houthi Red Sea attacks still torment global trade, a year after October 7",
-            "link": "https://www.aljazeera.com/news/houthi-red-sea-attacks",
-            "summary": "Yemen's rebel group has launched over 130 attacks in the Red Sea since October 7.",
-            "publisher": "Al Jazeera",
-            "date": "October 7, 2024"
-        },
-        {
-            "title": "Who are the Houthis and why are they attacking Red Sea ships?",
-            "link": "https://www.bbc.com/news/houthis-red-sea",
-            "summary": "The Houthis have launched over 40 attacks on commercial ships in the Red Sea and Gulf of Aden.",
-            "publisher": "BBC",
-            "date": "November 1, 2023"
-        },
-    ]
-
-# Check if we need to show the sources modal
-if st.session_state['show_sources']:
-    st.subheader("🔍 Sources")
-    st.markdown("These are the sources for the information provided in the response above. Select any that you'd like to explore further:")
+    # Function to simulate retrieving sources
+    def get_sources():
+        return [
+            {
+                "title": "Red Sea crisis - Wikipedia",
+                "link": "https://en.wikipedia.org/wiki/Red_Sea_crisis",
+                "summary": "The Red Sea crisis began in October 2023, involving Houthi movements in Yemen launching attacks at Israel.",
+                "publisher": "Wikipedia",
+                "date": "October 19, 2023"
+            },
+            {
+                "title": "Houthi Red Sea attacks still torment global trade, a year after October 7",
+                "link": "https://www.aljazeera.com/news/houthi-red-sea-attacks",
+                "summary": "Yemen's rebel group has launched over 130 attacks in the Red Sea since October 7.",
+                "publisher": "Al Jazeera",
+                "date": "October 7, 2024"
+            },
+            {
+                "title": "Who are the Houthis and why are they attacking Red Sea ships?",
+                "link": "https://www.bbc.com/news/houthis-red-sea",
+                "summary": "The Houthis have launched over 40 attacks on commercial ships in the Red Sea and Gulf of Aden.",
+                "publisher": "BBC",
+                "date": "November 1, 2023"
+            },
+        ]
 
     sources = get_sources()
 
-    # Displaying each source with detailed information inside an expander
+    # Displaying each source with detailed information inside the expander
     for source in sources:
         with st.expander(f"🔗 {source['title']}"):
             st.markdown(f"**Publisher**: {source['publisher']}")
             st.markdown(f"**Date**: {source['date']}")
             st.markdown(f"**Summary**: {source['summary']}")
             st.markdown(f"[View full article]({source['link']})", unsafe_allow_html=True)
-
-    # Button to close the sources view
-    if st.button("Close Sources"):
-        st.session_state['show_sources'] = False
 
 # Feedback Button to Open Feedback Modal
 if st.button("🛠️ Provide Feedback"):
