@@ -1,16 +1,15 @@
 import streamlit as st
-from datetime import datetime
+import streamlit_modal as modal
 
 # Page configuration
 st.set_page_config(page_title="Powerplexity Chat Enhanced Mockup", page_icon="💬", layout="wide")
 
-# Function to simulate retrieving sources
-def get_sources():
-    return [
-        {"title": "Red Sea crisis - Wikipedia", "link": "en.wikipedia.org", "ref_number": 1},
-        {"title": "Houthi Red Sea attacks still torment global trade", "link": "aljazeera.com", "ref_number": 2},
-        {"title": "Who are the Houthis and why are they attacking Red Sea ships?", "link": "bbc.com", "ref_number": 3},
-    ]
+# Feedback Modal Configuration
+if 'open_modal' not in st.session_state:
+    st.session_state['open_modal'] = False
+
+def open_feedback_modal():
+    st.session_state['open_modal'] = True
 
 # Sidebar (optional)
 with st.sidebar:
@@ -38,7 +37,11 @@ st.markdown(response)
 
 # Displaying sources as cards with numbers
 st.subheader("📌 Sources")
-sources = get_sources()
+sources = [
+    {"title": "Red Sea crisis - Wikipedia", "link": "en.wikipedia.org", "ref_number": 1},
+    {"title": "Houthi Red Sea attacks still torment global trade", "link": "aljazeera.com", "ref_number": 2},
+    {"title": "Who are the Houthis and why are they attacking Red Sea ships?", "link": "bbc.com", "ref_number": 3},
+]
 cols = st.columns(len(sources))
 
 for index, source in enumerate(sources):
@@ -47,17 +50,37 @@ for index, source in enumerate(sources):
         st.markdown(f"Reference: [{source['ref_number']}]")
         st.button(f"View Source {source['ref_number']}")
 
-# Feedback Button & Options
-with st.expander("Provide Feedback"):
-    st.markdown("### 🛠️ Help us improve this response")
-    feedback_options = ["Imprecise", "Not updated", "Too short", "Too long", "Harmful or offensive", "Not useful"]
-    feedback = st.multiselect("Select all that apply:", feedback_options)
-    additional_feedback = st.text_area("How can we improve the response?", "")
-    if st.button("Submit Feedback"):
-        if feedback:
-            st.success("Thank you for your feedback!")
-        else:
-            st.warning("Please select at least one feedback option.")
+# Feedback Button
+if st.button("🛠️ Provide Feedback"):
+    open_feedback_modal()
+
+# Display the Feedback Modal
+if st.session_state['open_modal']:
+    with st.expander("🛠️ Help us improve this response", expanded=True):
+        st.markdown("### 🛠️ Help us improve this response")
+        st.write("Select all that apply:")
+        feedback_options = [
+            "Imprecise", 
+            "Not updated", 
+            "Too short", 
+            "Too long", 
+            "Harmful or offensive", 
+            "Not useful"
+        ]
+        selected_feedback = [st.checkbox(option) for option in feedback_options]
+        additional_feedback = st.text_area("How can we improve the response? (Optional)")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Submit Feedback"):
+                if any(selected_feedback):
+                    st.success("Thank you for your feedback!")
+                    st.session_state['open_modal'] = False
+                else:
+                    st.warning("Please select at least one feedback option.")
+        with col2:
+            if st.button("Cancel"):
+                st.session_state['open_modal'] = False
 
 # Related Content Section
 st.subheader("🔗 Related Questions")
