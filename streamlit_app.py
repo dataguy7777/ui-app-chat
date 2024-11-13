@@ -62,7 +62,6 @@ def get_sources():
             "publisher": "BBC",
             "date": "November 1, 2023"
         },
-        # Additional sources can be added here...
     ]
 
 # Check if we need to show the sources modal
@@ -98,21 +97,28 @@ if st.session_state['open_modal']:
     with st.expander("🛠️ Help us improve this response", expanded=True):
         st.markdown("### 🛠️ Help us improve this response")
         st.write("Select all that apply:")
-        feedback_options = [
-            "Imprecise", 
-            "Not updated", 
-            "Too short", 
-            "Too long", 
-            "Harmful or offensive", 
-            "Not useful"
-        ]
-        selected_feedback = [st.checkbox(option) for option in feedback_options]
+
+        # Icons for feedback options, similar to the image you provided
+        feedback_options = {
+            "Imprecise": "⚠️ Imprecise",
+            "Not updated": "🔄 Not updated",
+            "Too short": "📏 Too short",
+            "Too long": "📜 Too long",
+            "Harmful or offensive": "🚨 Harmful or offensive",
+            "Not useful": "❌ Not useful"
+        }
+
+        selected_feedback = {}
+        for key, value in feedback_options.items():
+            selected_feedback[key] = st.checkbox(f"{value}")
+
+        # Optional text area for additional feedback
         additional_feedback = st.text_area("How can we improve the response? (Optional)")
         
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Submit Feedback"):
-                if any(selected_feedback):
+                if any(selected_feedback.values()):
                     st.success("Thank you for your feedback!")
                     st.session_state['open_modal'] = False
                 else:
