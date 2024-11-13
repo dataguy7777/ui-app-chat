@@ -31,7 +31,7 @@ The international community is closely monitoring these developments due to thei
 
 st.markdown(response)
 
-# Roll/Unroll all sources using st.expander
+# Roll/Unroll all sources using st.expander (without nesting)
 with st.expander("📚 Sources", expanded=False):
     st.markdown("These are the sources for the information provided in the response above. Expand to view the sources:")
 
@@ -63,13 +63,14 @@ with st.expander("📚 Sources", expanded=False):
 
     sources = get_sources()
 
-    # Displaying each source with detailed information inside the expander
+    # Displaying each source without nested expanders
     for source in sources:
-        with st.expander(f"🔗 {source['title']}"):
-            st.markdown(f"**Publisher**: {source['publisher']}")
-            st.markdown(f"**Date**: {source['date']}")
-            st.markdown(f"**Summary**: {source['summary']}")
-            st.markdown(f"[View full article]({source['link']})", unsafe_allow_html=True)
+        st.markdown(f"### 🔗 {source['title']}")
+        st.markdown(f"**Publisher**: {source['publisher']}")
+        st.markdown(f"**Date**: {source['date']}")
+        st.markdown(f"**Summary**: {source['summary']}")
+        st.markdown(f"[View full article]({source['link']})", unsafe_allow_html=True)
+        st.markdown("---")
 
 # Feedback Button to Open Feedback Modal
 if st.button("🛠️ Provide Feedback"):
