@@ -1,131 +1,89 @@
 import streamlit as st
+from datetime import datetime
 
-# Set page configuration
-st.set_page_config(page_title="Chat App with Right-Aligned Feedback and Submit Button", layout="wide")
+# Page configuration
+st.set_page_config(page_title="Powerplexity Chat Enhanced Mockup", page_icon="💬", layout="wide")
 
-# Initialize session state for conversation and feedback
-if 'conversation' not in st.session_state:
-    st.session_state.conversation = [
-        {
-            "sender": "user",
-            "message": "Hello! Can you explain the concept of machine learning?"
-        },
-        {
-            "sender": "bot",
-            "message": "Machine learning is a subset of artificial intelligence that focuses on building systems that learn from data to improve their performance over time.",
-            "citations": [
-                {"description": "Learn more:", "title": "Machine Learning Basics", "url": "https://example.com/ml-basics"}
-            ]
-        }
+# Function to simulate retrieving sources
+def get_sources():
+    return [
+        {"title": "Red Sea crisis - Wikipedia", "link": "en.wikipedia.org", "ref_number": 1},
+        {"title": "Houthi Red Sea attacks still torment global trade", "link": "aljazeera.com", "ref_number": 2},
+        {"title": "Who are the Houthis and why are they attacking Red Sea ships?", "link": "bbc.com", "ref_number": 3},
     ]
 
-# Initialize feedback state
-if 'feedback' not in st.session_state:
-    st.session_state.feedback = {}
+# Sidebar (optional)
+with st.sidebar:
+    st.title("Powerplexity Enhanced Chat")
+    st.markdown("**Mockup Chat Application with Enhanced Features**")
+    st.markdown("---")
+    st.markdown("🔍 **Explore**")
+    st.button("Sources")
+    st.button("Related Questions")
 
-# Custom CSS for styling
+# Main content: Chat Mockup
+st.title("💬 Powerplexity Chat Enhanced Mockup")
+st.write("")
+
+# Displaying the response
+response = """
+The **Red Sea crisis** has emerged as a significant geopolitical conflict since October 19, 2023, 
+when the Iran-backed Houthi movement in Yemen initiated a series of missile and drone attacks targeting Israel and commercial vessels in the Red Sea. 
+This escalation is closely linked to the ongoing Israel-Hamas war, which began shortly before the Houthis' actions, 
+as they declared solidarity with Hamas and aimed to disrupt maritime trade in response to Israel's military operations in Gaza. 
+The international community is closely monitoring these developments due to their potential implications for global trade and regional stability. 
+"""
+
+st.markdown(response)
+
+# Displaying sources as cards with numbers
+st.subheader("📌 Sources")
+sources = get_sources()
+cols = st.columns(len(sources))
+
+for index, source in enumerate(sources):
+    with cols[index]:
+        st.markdown(f"**[{source['title']}]({source['link']})**")
+        st.markdown(f"Reference: [{source['ref_number']}]")
+        st.button(f"View Source {source['ref_number']}")
+
+# Feedback Button & Options
+with st.expander("Provide Feedback"):
+    st.markdown("### 🛠️ Help us improve this response")
+    feedback_options = ["Imprecise", "Not updated", "Too short", "Too long", "Harmful or offensive", "Not useful"]
+    feedback = st.multiselect("Select all that apply:", feedback_options)
+    additional_feedback = st.text_area("How can we improve the response?", "")
+    if st.button("Submit Feedback"):
+        if feedback:
+            st.success("Thank you for your feedback!")
+        else:
+            st.warning("Please select at least one feedback option.")
+
+# Related Content Section
+st.subheader("🔗 Related Questions")
+related_questions = [
+    "What is the current status of the Houthi movement?",
+    "How are Red Sea maritime routes impacted by recent conflicts?",
+    "Who are the key stakeholders in the Red Sea geopolitical situation?"
+]
+for question in related_questions:
+    st.markdown(f"- {question}")
+
+# Footer Section
 st.markdown("""
-    <style>
-    .bot-message {
-        background-color: #F1F0F0;
-        padding: 10px;
-        border-radius: 10px;
-        max-width: 70%;
-        margin: 5px 0;
-        text-align: left;
-        align-self: flex-end;
-    }
-    .user-message {
-        background-color: #DCF8C6;
-        padding: 10px;
-        border-radius: 10px;
-        max-width: 70%;
-        margin: 5px 0;
-        align-self: flex-start;
-    }
-    .feedback-section {
-        background-color: #E0E0E0;
-        padding: 10px;
-        border-radius: 10px;
-        margin-top: 10px;
-    }
-    .feedback-buttons {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-    .right-align {
-        display: flex;
-        justify-content: flex-end;
-    }
-    </style>
+<style>
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+    color: #333;
+    text-align: center;
+    padding: 10px;
+}
+</style>
+<div class="footer">
+    <p>© 2024 Powerplexity. All rights reserved.</p>
+</div>
 """, unsafe_allow_html=True)
-
-# Function to display user message
-def display_user_message(message):
-    st.markdown(f"<div class='user-message'>{message}</div>", unsafe_allow_html=True)
-
-# Function to display bot message and feedback
-def display_bot_message(message, citations, msg_index):
-    # Display bot message box on the right
-    st.markdown(f"<div class='bot-message'>{message}</div>", unsafe_allow_html=True)
-    for cite in citations:
-        st.markdown(f"📖 [{cite['title']}]({cite['url']})")
-
-    # Feedback buttons and section inside the bot message box
-    with st.container():
-        st.markdown("<div class='right-align'>", unsafe_allow_html=True)
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            like = st.button("👍 Like", key=f"like_{msg_index}")
-        with col2:
-            dislike = st.button("👎 Dislike", key=f"dislike_{msg_index}")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        # Display feedback input area after Like/Dislike is selected
-        if like or dislike:
-            feedback_type = "Like" if like else "Dislike"
-            st.session_state.feedback[msg_index] = {"rating": feedback_type, "comment": "", "image": None}
-
-            # Feedback input area
-            with st.expander("Provide additional feedback (optional)", expanded=True):
-                comment = st.text_area("Your Comment:", key=f"comment_{msg_index}")
-                uploaded_file = st.file_uploader("Attach an image (optional):", type=["png", "jpg", "jpeg"], key=f"upload_{msg_index}")
-
-                # Display Submit Feedback button
-                if st.button("Submit Feedback", key=f"submit_{msg_index}"):
-                    # Update session state with comment and image
-                    st.session_state.feedback[msg_index]["comment"] = comment.strip()
-                    if uploaded_file is not None:
-                        st.session_state.feedback[msg_index]["image"] = uploaded_file
-                    st.success("Thank you for your feedback!")
-
-# Generate bot response (placeholder function)
-def generate_bot_response(user_message):
-    return {
-        "message": f"You asked: {user_message}. (This is a mock response.)",
-        "citations": [{"description": "Learn more:", "title": "Example Link", "url": "https://example.com"}]
-    }
-
-# Main chat display
-st.title("Chat Application with Right-Aligned Feedback and Submit Button")
-
-# Display conversation
-for idx, msg in enumerate(st.session_state.conversation):
-    if msg["sender"] == "user":
-        display_user_message(msg["message"])
-    elif msg["sender"] == "bot":
-        display_bot_message(msg["message"], msg.get("citations", []), idx)
-
-# User input area
-user_input = st.text_input("Your message:")
-if st.button("Send"):
-    if user_input.strip():
-        st.session_state.conversation.append({"sender": "user", "message": user_input})
-        bot_response = generate_bot_response(user_input)
-        st.session_state.conversation.append({"sender": "bot", "message": bot_response["message"], "citations": bot_response["citations"]})
-        st.experimental_rerun()
-
-# Optional sidebar to display feedback data
-# Uncomment for debugging
-# st.sidebar.write(st.session_state.feedback)
