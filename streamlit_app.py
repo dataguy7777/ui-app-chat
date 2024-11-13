@@ -3,6 +3,13 @@ import streamlit as st
 # Page configuration
 st.set_page_config(page_title="Powerplexity Enhanced Chat", page_icon="💬", layout="wide")
 
+# Feedback Modal Configuration
+if 'open_modal' not in st.session_state:
+    st.session_state['open_modal'] = False
+
+if 'show_sources' not in st.session_state:
+    st.session_state['show_sources'] = False
+
 # Sidebar (optional)
 with st.sidebar:
     st.title("Powerplexity Chat")
@@ -27,7 +34,7 @@ The international community is closely monitoring these developments due to thei
 
 st.markdown(response)
 
-# Sources Button to Open the Modal View
+# Button to Open the Sources Modal View
 if st.button("📚 View Sources"):
     st.session_state['show_sources'] = True
 
@@ -58,16 +65,12 @@ def get_sources():
         # Additional sources can be added here...
     ]
 
-# Check if we need to show the modal for sources
-if 'show_sources' not in st.session_state:
-    st.session_state['show_sources'] = False
-
+# Check if we need to show the sources modal
 if st.session_state['show_sources']:
     st.subheader("🔍 Sources")
     st.markdown("These are the sources for the information provided in the response above. Select any that you'd like to explore further:")
 
     sources = get_sources()
-    selected_sources = []
 
     # Displaying each source with detailed information
     for source in sources:
@@ -83,8 +86,40 @@ if st.session_state['show_sources']:
         st.markdown("---")
 
     # Button to close the modal
-    if st.button("Close"):
+    if st.button("Close Sources"):
         st.session_state['show_sources'] = False
+
+# Feedback Button to Open Feedback Modal
+if st.button("🛠️ Provide Feedback"):
+    st.session_state['open_modal'] = True
+
+# Display the Feedback Modal
+if st.session_state['open_modal']:
+    with st.expander("🛠️ Help us improve this response", expanded=True):
+        st.markdown("### 🛠️ Help us improve this response")
+        st.write("Select all that apply:")
+        feedback_options = [
+            "Imprecise", 
+            "Not updated", 
+            "Too short", 
+            "Too long", 
+            "Harmful or offensive", 
+            "Not useful"
+        ]
+        selected_feedback = [st.checkbox(option) for option in feedback_options]
+        additional_feedback = st.text_area("How can we improve the response? (Optional)")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Submit Feedback"):
+                if any(selected_feedback):
+                    st.success("Thank you for your feedback!")
+                    st.session_state['open_modal'] = False
+                else:
+                    st.warning("Please select at least one feedback option.")
+        with col2:
+            if st.button("Cancel Feedback"):
+                st.session_state['open_modal'] = False
 
 # Related Content Section
 st.subheader("🔗 Related Questions")
