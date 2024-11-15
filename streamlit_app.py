@@ -84,7 +84,7 @@ if st.session_state['open_modal']:
     # Overlay effect
     st.markdown(
         """
-        <div style="
+        <div id="modal-overlay" style="
             position: fixed;
             top: 0;
             left: 0;
@@ -96,7 +96,7 @@ if st.session_state['open_modal']:
             justify-content: center;
             align-items: center;
         ">
-            <div style="
+            <div id="modal-content" style="
                 background: white;
                 padding: 30px;
                 border-radius: 10px;
@@ -125,28 +125,32 @@ if st.session_state['open_modal']:
     feedback_container = st.container()
 
     with feedback_container:
-        # Arrange feedback options in two rows of three columns each
+        # Arrange feedback options in three columns
         cols = st.columns(3)
         for idx, (key, value) in enumerate(feedback_options.items()):
             with cols[idx % 3]:
                 # Determine if the feedback option is selected
                 is_selected = key in st.session_state['selected_feedback']
-                # Button style based on selection using f-strings
+                # Button style based on selection
+                button_bg = "#4CAF50" if is_selected else "#f0f0f0"
+                button_color = "white" if is_selected else "black"
+                button_hover_bg = "#45a049" if is_selected else "#e0e0e0"
+
                 button_style = f"""
                     <style>
                     .feedback-button-{key} {{
                         width: 100%;
-                        height: 100px;
+                        height: 80px;
                         font-size: 16px;
                         border: 2px solid #4CAF50;
                         border-radius: 10px;
-                        background-color: {'#4CAF50' if is_selected else '#f0f0f0'};
-                        color: {'white' if is_selected else '#000'};
+                        background-color: {button_bg};
+                        color: {button_color};
                         cursor: pointer;
                         transition: background-color 0.3s;
                     }}
                     .feedback-button-{key}:hover {{
-                        background-color: {'#45a049' if is_selected else '#e0e0e0'};
+                        background-color: {button_hover_bg};
                     }}
                     </style>
                 """
@@ -202,7 +206,6 @@ if st.session_state['open_modal']:
             st.experimental_rerun()
     st.markdown(
         """
-        </div>
         </div>
         </div>
         </div>
