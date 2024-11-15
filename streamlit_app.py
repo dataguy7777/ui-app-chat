@@ -81,36 +81,35 @@ if st.button("🛠️ Provide Feedback"):
 
 # Display the Feedback Modal as a Pop-over
 if st.session_state['open_modal']:
-    # Overlay effect
-    st.markdown(
-        """
-        <div id="modal-overlay" style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+    # Overlay effect using HTML and CSS
+    modal_html = """
+    <div id="modal-overlay" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    ">
+        <div id="modal-content" style="
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
         ">
-            <div id="modal-content" style="
-                background: white;
-                padding: 30px;
-                border-radius: 10px;
-                width: 90%;
-                max-width: 700px;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                position: relative;
-            ">
-                <h2 style="text-align: center;">🛠️ Help Us Improve This Response</h2>
-                <p style="text-align: center;">Select all that apply:</p>
-                <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
-        """,
-        unsafe_allow_html=True
-    )
+            <h2 style="text-align: center;">🛠️ Help Us Improve This Response</h2>
+            <p style="text-align: center;">Select all that apply:</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
+    """
+
+    st.markdown(modal_html, unsafe_allow_html=True)
 
     feedback_options = {
         "Imprecise": "⚠️ Imprecise",
@@ -136,28 +135,29 @@ if st.session_state['open_modal']:
                 button_color = "white" if is_selected else "black"
                 button_hover_bg = "#45a049" if is_selected else "#e0e0e0"
 
-                button_style = f"""
-                    <style>
-                    .feedback-button-{key} {{
-                        width: 100%;
-                        height: 80px;
-                        font-size: 16px;
-                        border: 2px solid #4CAF50;
-                        border-radius: 10px;
-                        background-color: {button_bg};
-                        color: {button_color};
-                        cursor: pointer;
-                        transition: background-color 0.3s;
-                    }}
-                    .feedback-button-{key}:hover {{
-                        background-color: {button_hover_bg};
-                    }}
-                    </style>
-                """
+                # Define a unique key for each button to avoid conflicts
+                button_key = f"feedback_{key}"
 
-                # Render the button with HTML
-                st.markdown(button_style, unsafe_allow_html=True)
-                if st.button(value, key=key):
+                # Use Streamlit's button and adjust style accordingly
+                if st.button(value, key=button_key, 
+                             style=f"""
+                             <style>
+                             .stButton > button {{
+                                 width: 100%;
+                                 height: 80px;
+                                 font-size: 16px;
+                                 border: 2px solid #4CAF50;
+                                 border-radius: 10px;
+                                 background-color: {button_bg};
+                                 color: {button_color};
+                                 cursor: pointer;
+                                 transition: background-color 0.3s;
+                             }}
+                             .stButton > button:hover {{
+                                 background-color: {button_hover_bg};
+                             }}
+                             </style>
+                             """):
                     if key in st.session_state['selected_feedback']:
                         st.session_state['selected_feedback'].remove(key)
                     else:
@@ -172,7 +172,7 @@ if st.session_state['open_modal']:
         """,
         unsafe_allow_html=True
     )
-    additional_feedback = st.text_area("How can we improve the response? (Optional)", height=100)
+    additional_feedback = st.text_area("How can we improve the response? (Optional)", height=100, key="additional_feedback_modal")
     st.markdown(
         """
         </div>
@@ -189,7 +189,7 @@ if st.session_state['open_modal']:
     )
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Submit Feedback"):
+        if st.button("Submit Feedback", key="submit_feedback"):
             if st.session_state['selected_feedback']:
                 # Handle the feedback (e.g., save to database or send via email)
                 st.success("Thank you for your feedback!")
@@ -200,7 +200,7 @@ if st.session_state['open_modal']:
             else:
                 st.warning("Please select at least one feedback option.")
     with col2:
-        if st.button("Cancel Feedback"):
+        if st.button("Cancel Feedback", key="cancel_feedback"):
             st.session_state['open_modal'] = False
             st.session_state['selected_feedback'] = []
             st.experimental_rerun()
