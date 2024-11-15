@@ -84,7 +84,7 @@ if st.session_state['open_modal']:
     # Overlay effect
     st.markdown(
         """
-        <div style="
+        <div id="modal-overlay" style="
             position: fixed;
             top: 0;
             left: 0;
@@ -96,16 +96,18 @@ if st.session_state['open_modal']:
             justify-content: center;
             align-items: center;
         ">
-            <div style="
+            <div id="modal-content" style="
                 background: white;
-                padding: 20px;
+                padding: 30px;
                 border-radius: 10px;
-                width: 80%;
-                max-width: 600px;
+                width: 90%;
+                max-width: 700px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                position: relative;
             ">
-                <h2>🛠️ Help Us Improve This Response</h2>
-                <p>Select all that apply:</p>
-                <div id="feedback-options" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <h2 style="text-align: center;">🛠️ Help Us Improve This Response</h2>
+                <p style="text-align: center;">Select all that apply:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
         """,
         unsafe_allow_html=True
     )
@@ -123,40 +125,88 @@ if st.session_state['open_modal']:
     feedback_container = st.container()
 
     with feedback_container:
+        # Arrange feedback options in two rows of three columns each
         cols = st.columns(3)
         for idx, (key, value) in enumerate(feedback_options.items()):
             with cols[idx % 3]:
+                # Determine if the feedback option is selected
+                is_selected = key in st.session_state['selected_feedback']
+                # Button style based on selection
+                button_style = """
+                    <style>
+                    .feedback-button {
+                        width: 100%;
+                        height: 100px;
+                        font-size: 16px;
+                        border: 2px solid #4CAF50;
+                        border-radius: 10px;
+                        background-color: %s;
+                        color: white;
+                        cursor: pointer;
+                        transition: background-color 0.3s;
+                    }
+                    .feedback-button:hover {
+                        background-color: %s;
+                    }
+                    </style>
+                """ % (
+                    "#4CAF50" if is_selected else "#f0f0f0",
+                    "#45a049" if is_selected else "#e0e0e0"
+                )
+
+                # Render the button with HTML
+                st.markdown(button_style, unsafe_allow_html=True)
                 if st.button(value, key=key):
                     if key in st.session_state['selected_feedback']:
                         st.session_state['selected_feedback'].remove(key)
                     else:
                         st.session_state['selected_feedback'].append(key)
+                    # Rerun to update the button styles
+                    st.experimental_rerun()
 
     # Additional feedback textarea
-    additional_feedback = st.text_area("How can we improve the response? (Optional)")
+    st.markdown(
+        """
+        <div style="margin-top: 20px;">
+        """,
+        unsafe_allow_html=True
+    )
+    additional_feedback = st.text_area("How can we improve the response? (Optional)", height=100)
+    st.markdown(
+        """
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     # Submit and Cancel buttons
+    st.markdown(
+        """
+        <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+        """,
+        unsafe_allow_html=True
+    )
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Submit Feedback"):
             if st.session_state['selected_feedback']:
-                # Here you can handle the feedback, e.g., save to database or send an email
+                # Handle the feedback (e.g., save to database or send via email)
                 st.success("Thank you for your feedback!")
                 # Reset feedback state
                 st.session_state['open_modal'] = False
                 st.session_state['selected_feedback'] = []
+                st.experimental_rerun()
             else:
                 st.warning("Please select at least one feedback option.")
     with col2:
         if st.button("Cancel Feedback"):
             st.session_state['open_modal'] = False
             st.session_state['selected_feedback'] = []
-
-    # Close the overlay div
+            st.experimental_rerun()
     st.markdown(
         """
-                </div>
-            </div>
+        </div>
+        </div>
         </div>
         """,
         unsafe_allow_html=True
