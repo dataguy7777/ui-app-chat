@@ -84,7 +84,7 @@ if st.session_state['open_modal']:
     # Overlay effect
     st.markdown(
         """
-        <div id="modal-overlay" style="
+        <div style="
             position: fixed;
             top: 0;
             left: 0;
@@ -96,7 +96,7 @@ if st.session_state['open_modal']:
             justify-content: center;
             align-items: center;
         ">
-            <div id="modal-content" style="
+            <div style="
                 background: white;
                 padding: 30px;
                 border-radius: 10px;
@@ -131,28 +131,25 @@ if st.session_state['open_modal']:
             with cols[idx % 3]:
                 # Determine if the feedback option is selected
                 is_selected = key in st.session_state['selected_feedback']
-                # Button style based on selection
-                button_style = """
+                # Button style based on selection using f-strings
+                button_style = f"""
                     <style>
-                    .feedback-button {
+                    .feedback-button-{key} {{
                         width: 100%;
                         height: 100px;
                         font-size: 16px;
                         border: 2px solid #4CAF50;
                         border-radius: 10px;
-                        background-color: %s;
-                        color: white;
+                        background-color: {'#4CAF50' if is_selected else '#f0f0f0'};
+                        color: {'white' if is_selected else '#000'};
                         cursor: pointer;
                         transition: background-color 0.3s;
-                    }
-                    .feedback-button:hover {
-                        background-color: %s;
-                    }
+                    }}
+                    .feedback-button-{key}:hover {{
+                        background-color: {'#45a049' if is_selected else '#e0e0e0'};
+                    }}
                     </style>
-                """ % (
-                    "#4CAF50" if is_selected else "#f0f0f0",
-                    "#45a049" if is_selected else "#e0e0e0"
-                )
+                """
 
                 # Render the button with HTML
                 st.markdown(button_style, unsafe_allow_html=True)
@@ -205,6 +202,7 @@ if st.session_state['open_modal']:
             st.experimental_rerun()
     st.markdown(
         """
+        </div>
         </div>
         </div>
         </div>
