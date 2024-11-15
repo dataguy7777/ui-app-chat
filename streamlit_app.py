@@ -3,9 +3,12 @@ import streamlit as st
 # Page configuration
 st.set_page_config(page_title="Powerplexity Enhanced Chat", page_icon="💬", layout="wide")
 
-# Feedback Modal Configuration
+# Initialize session state for modal and feedback selections
 if 'open_modal' not in st.session_state:
     st.session_state['open_modal'] = False
+
+if 'selected_feedback' not in st.session_state:
+    st.session_state['selected_feedback'] = []
 
 # Sidebar (optional)
 with st.sidebar:
@@ -76,40 +79,88 @@ with st.expander("📚 Sources", expanded=False):
 if st.button("🛠️ Provide Feedback"):
     st.session_state['open_modal'] = True
 
-# Display the Feedback Modal
+# Display the Feedback Modal as a Pop-over
 if st.session_state['open_modal']:
-    with st.expander("🛠️ Help us improve this response", expanded=True):
-        st.markdown("### 🛠️ Help us improve this response")
-        st.write("Select all that apply:")
+    # Overlay effect
+    st.markdown(
+        """
+        <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        ">
+            <div style="
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                width: 80%;
+                max-width: 600px;
+            ">
+                <h2>🛠️ Help Us Improve This Response</h2>
+                <p>Select all that apply:</p>
+                <div id="feedback-options" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        """,
+        unsafe_allow_html=True
+    )
 
-        # Icons for feedback options, similar to the image you provided
-        feedback_options = {
-            "Imprecise": "⚠️ Imprecise",
-            "Not updated": "🔄 Not updated",
-            "Too short": "📏 Too short",
-            "Too long": "📜 Too long",
-            "Harmful or offensive": "🚨 Harmful or offensive",
-            "Not useful": "❌ Not useful"
-        }
+    feedback_options = {
+        "Imprecise": "⚠️ Imprecise",
+        "Not updated": "🔄 Not updated",
+        "Too short": "📏 Too short",
+        "Too long": "📜 Too long",
+        "Harmful or offensive": "🚨 Harmful or offensive",
+        "Not useful": "❌ Not useful"
+    }
 
-        selected_feedback = {}
-        for key, value in feedback_options.items():
-            selected_feedback[key] = st.checkbox(f"{value}")
+    # Create a container for feedback options
+    feedback_container = st.container()
 
-        # Optional text area for additional feedback
-        additional_feedback = st.text_area("How can we improve the response? (Optional)")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("Submit Feedback"):
-                if any(selected_feedback.values()):
-                    st.success("Thank you for your feedback!")
-                    st.session_state['open_modal'] = False
-                else:
-                    st.warning("Please select at least one feedback option.")
-        with col2:
-            if st.button("Cancel Feedback"):
+    with feedback_container:
+        cols = st.columns(3)
+        for idx, (key, value) in enumerate(feedback_options.items()):
+            with cols[idx % 3]:
+                if st.button(value, key=key):
+                    if key in st.session_state['selected_feedback']:
+                        st.session_state['selected_feedback'].remove(key)
+                    else:
+                        st.session_state['selected_feedback'].append(key)
+
+    # Additional feedback textarea
+    additional_feedback = st.text_area("How can we improve the response? (Optional)")
+
+    # Submit and Cancel buttons
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Submit Feedback"):
+            if st.session_state['selected_feedback']:
+                # Here you can handle the feedback, e.g., save to database or send an email
+                st.success("Thank you for your feedback!")
+                # Reset feedback state
                 st.session_state['open_modal'] = False
+                st.session_state['selected_feedback'] = []
+            else:
+                st.warning("Please select at least one feedback option.")
+    with col2:
+        if st.button("Cancel Feedback"):
+            st.session_state['open_modal'] = False
+            st.session_state['selected_feedback'] = []
+
+    # Close the overlay div
+    st.markdown(
+        """
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # Related Content Section
 st.subheader("🔗 Related Questions")
