@@ -95,6 +95,14 @@ def inject_css():
 
 inject_css()
 
+# --------------------- Inizializzazione dello stato della sessione ---------------------
+# Assicurati che tutte le chiavi necessarie in st.session_state siano inizializzate
+if 'selected_feedback' not in st.session_state:
+    st.session_state['selected_feedback'] = []
+
+if 'additional_feedback_expander' not in st.session_state:
+    st.session_state['additional_feedback_expander'] = ""
+
 # --------------------- Barra Laterale con Logo di Intesa Sanpaolo ---------------------
 with st.sidebar:
     # Aggiungi il logo di Intesa Sanpaolo
