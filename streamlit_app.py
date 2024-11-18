@@ -3,10 +3,7 @@ import streamlit as st
 # Page configuration
 st.set_page_config(page_title="Powerplexity Enhanced Chat", page_icon="💬", layout="wide")
 
-# Initialize session state for modal and feedback selections
-if 'open_modal' not in st.session_state:
-    st.session_state['open_modal'] = False
-
+# Initialize session state for feedback selections
 if 'selected_feedback' not in st.session_state:
     st.session_state['selected_feedback'] = []
 
@@ -68,62 +65,28 @@ with st.expander("📚 Sources", expanded=False):
 
     # Displaying each source without nested expanders
     for source in sources:
-        st.markdown(f"### 🔗 {source['title']}")
+        st.markdown(f"### 🔗 [{source['title']}]({source['link']})")
         st.markdown(f"**Publisher**: {source['publisher']}")
         st.markdown(f"**Date**: {source['date']}")
         st.markdown(f"**Summary**: {source['summary']}")
-        st.markdown(f"[View full article]({source['link']})", unsafe_allow_html=True)
         st.markdown("---")
 
-# Feedback Button to Open Feedback Modal
-if st.button("🛠️ Provide Feedback"):
-    st.session_state['open_modal'] = True
+# Feedback Section using st.expander
+with st.expander("🛠️ Provide Feedback", expanded=False):
+    st.markdown("**Help Us Improve This Response**")
+    st.markdown("Select all that apply:")
 
-# Display the Feedback Modal as a Pop-over
-if st.session_state['open_modal']:
-    # Overlay effect using HTML and CSS
-    modal_overlay = """
-    <div style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    ">
-    """
-    st.markdown(modal_overlay, unsafe_allow_html=True)
-
-    # Modal content
-    modal_content = """
-    <div style="
-        background: white;
-        padding: 30px;
-        border-radius: 10px;
-        width: 90%;
-        max-width: 700px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        position: relative;
-    ">
-        <h2 style="text-align: center;">🛠️ Help Us Improve This Response</h2>
-        <p style="text-align: center;">Select all that apply:</p>
-    """
-    st.markdown(modal_content, unsafe_allow_html=True)
-
-    # Arrange checkboxes in three columns
+    # Feedback options
     feedback_options = {
-        "Imprecise": "⚠️ Imprecise",
-        "Not updated": "🔄 Not updated",
-        "Too short": "📏 Too short",
-        "Too long": "📜 Too long",
-        "Harmful or offensive": "🚨 Harmful or offensive",
-        "Not useful": "❌ Not useful"
+        "imprecise": "⚠️ Imprecise",
+        "not_updated": "🔄 Not updated",
+        "too_short": "📏 Too short",
+        "too_long": "📜 Too long",
+        "harmful_offensive": "🚨 Harmful or offensive",
+        "not_useful": "❌ Not useful"
     }
 
+    # Arrange checkboxes in three columns
     cols = st.columns(3)
     for idx, (key, label) in enumerate(feedback_options.items()):
         with cols[idx % 3]:
@@ -135,33 +98,24 @@ if st.session_state['open_modal']:
                     st.session_state['selected_feedback'].remove(key)
 
     # Additional feedback textarea
-    additional_feedback = st.text_area("How can we improve the response? (Optional)", height=100, key="additional_feedback_modal")
+    additional_feedback = st.text_area("How can we improve the response? (Optional)", height=100, key="additional_feedback_expander")
 
     # Submit and Cancel buttons
     submit_cancel_cols = st.columns(2)
     with submit_cancel_cols[0]:
-        if st.button("Submit Feedback", key="submit_feedback"):
+        if st.button("Submit Feedback", key="submit_feedback_expander"):
             if st.session_state['selected_feedback']:
                 # Handle the feedback (e.g., save to database or send via email)
                 st.success("Thank you for your feedback!")
                 # Reset feedback state
-                st.session_state['open_modal'] = False
                 st.session_state['selected_feedback'] = []
                 st.experimental_rerun()
             else:
                 st.warning("Please select at least one feedback option.")
     with submit_cancel_cols[1]:
-        if st.button("Cancel Feedback", key="cancel_feedback"):
-            st.session_state['open_modal'] = False
+        if st.button("Cancel Feedback", key="cancel_feedback_expander"):
             st.session_state['selected_feedback'] = []
             st.experimental_rerun()
-
-    # Close modal divs
-    close_modal = """
-    </div>
-    </div>
-    """
-    st.markdown(close_modal, unsafe_allow_html=True)
 
 # Related Content Section
 st.subheader("🔗 Related Questions")
@@ -191,3 +145,4 @@ st.markdown("""
     <p>© 2024 Powerplexity. All rights reserved.</p>
 </div>
 """, unsafe_allow_html=True)
+
