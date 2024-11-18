@@ -120,63 +120,70 @@ with st.sidebar:
 st.title("💬 Mockup Avanzato di Powerplexity Chat")
 st.write("")
 
-# Testo della risposta
+# Testo della risposta aggiornato a Data Lineage delle Tabelle Bancarie
 response = """
-La **crisi del Mar Rosso** è emersa come un conflitto geopolitico significativo dal 19 ottobre 2023, 
-quando il movimento Houthi sostenuto dall'Iran nello Yemen ha avviato una serie di attacchi missilistici e con droni contro Israele e navi commerciali nel Mar Rosso. 
-Questa escalation è strettamente collegata all'attuale guerra Israele-Hamas, iniziata poco prima delle azioni degli Houthi, 
-in quanto hanno dichiarato solidarietà con Hamas e miravano a interrompere il commercio marittimo in risposta alle operazioni militari israeliane a Gaza. 
-La comunità internazionale sta monitorando da vicino questi sviluppi a causa delle potenziali implicazioni per il commercio globale e la stabilità regionale.
+Il **data lineage** rappresenta il tracciamento del flusso dei dati all'interno delle diverse tabelle e sistemi di una banca. Esso fornisce una visione chiara di come i dati vengono estratti, trasformati e caricati (ETL) attraverso i vari processi aziendali, garantendo trasparenza, tracciabilità e conformità normativa.
+
+### **Importanza del Data Lineage:**
+- **Trasparenza:** Consente di comprendere esattamente come i dati si muovono attraverso i sistemi.
+- **Qualità dei Dati:** Aiuta a identificare e correggere eventuali errori o incongruenze nei dati.
+- **Conformità Normativa:** Assicura che i processi di gestione dei dati rispettino le normative vigenti.
+- **Ottimizzazione dei Processi:** Facilita l'identificazione di inefficienze e aree di miglioramento nei flussi di dati.
+
+### **Componenti Chiave:**
+1. **Origine dei Dati:** Tabelle e sistemi da cui i dati vengono estratti.
+2. **Processi di Trasformazione:** Operazioni di pulizia, aggregazione e manipolazione dei dati.
+3. **Destinazione dei Dati:** Tabelle e sistemi in cui i dati vengono caricati e utilizzati.
+4. **Metadati:** Informazioni contestuali sui dati, come definizioni di campo, regole di trasformazione e dipendenze.
+
+### **Benefici Principali:**
+- **Riduzione dei Rischi:** Minimizza il rischio di errori nei processi decisionali basati sui dati.
+- **Miglioramento dell'Efficienza:** Automatizza il tracciamento dei dati, riducendo il carico di lavoro manuale.
+- **Supporto alla Governance dei Dati:** Facilita la gestione e il controllo dei dati aziendali.
+
+Attraverso un'efficace implementazione del data lineage, le banche possono migliorare significativamente la gestione dei loro dati, garantendo operazioni più sicure, efficienti e conformi.
 """
 
 st.markdown(response)
 
 # --------------------- Sezione Fonti con Icone Realistiche ---------------------
 with st.expander("📚 Fonti", expanded=False):
-    st.markdown("Questi sono i file che forniscono informazioni dettagliate relative alla risposta sopra. Espandi per visualizzare le fonti:")
+    st.markdown("Questi sono i file che forniscono informazioni dettagliate relative al data lineage delle tabelle bancarie. Espandi per visualizzare le fonti:")
 
     # Funzione per simulare il recupero delle fonti dei file
     def get_sources():
         return [
             {
-                "title": "Analisi Dati Crisi del Mar Rosso",
-                "link": "https://example.com/files/red_sea_crisis_data.xlsx",
-                "summary": "Analisi completa dei dati degli eventi della crisi del Mar Rosso dall'ottobre 2023.",
+                "title": "Diagramma Data Lineage delle Tabelle",
+                "link": "https://example.com/files/data_lineage_diagram.pptx",
+                "summary": "Diagramma che illustra il flusso dei dati attraverso le principali tabelle del sistema bancario.",
                 "publisher": "Powerplexity Analytics",
-                "date": "19 Ottobre 2023",
-                "file_type": "excel"
-            },
-            {
-                "title": "Rapporto sull'Impatto del Movimento Houthi",
-                "link": "https://example.com/files/houthi_impact_report.pdf",
-                "summary": "Rapporto dettagliato sulle attività del movimento Houthi e il loro impatto sulla stabilità regionale.",
-                "publisher": "Middle East Research Institute",
-                "date": "7 Ottobre 2024",
-                "file_type": "pdf"
-            },
-            {
-                "title": "Statistiche sulla Disruption del Commercio Marittimo",
-                "link": "https://example.com/files/maritime_trade_stats.xlsx",
-                "summary": "Panoramica statistica delle interruzioni del commercio marittimo nel Mar Rosso e nel Golfo di Aden.",
-                "publisher": "Global Trade Watch",
-                "date": "1 Novembre 2023",
-                "file_type": "excel"
-            },
-            {
-                "title": "Presentazione sulla Crisi del Mar Rosso",
-                "link": "https://example.com/files/red_sea_crisis_presentation.pptx",
-                "summary": "Diapositive della presentazione che dettagliano gli aspetti chiave della crisi del Mar Rosso.",
-                "publisher": "Powerplexity Strategy",
-                "date": "5 Dicembre 2023",
+                "date": "15 Marzo 2024",
                 "file_type": "pptx"
             },
             {
-                "title": "Panoramica delle Operazioni Houthi",
-                "link": "https://example.com/files/houthi_operations.docx",
-                "summary": "Documento Word che delinea le operazioni del movimento Houthi nella regione del Mar Rosso.",
-                "publisher": "Middle East Analysis Group",
-                "date": "10 Gennaio 2024",
+                "title": "Report sul Data Lineage",
+                "link": "https://example.com/files/data_lineage_report.pdf",
+                "summary": "Rapporto dettagliato sull'implementazione del data lineage nelle operazioni bancarie.",
+                "publisher": "Middle East Research Institute",
+                "date": "20 Marzo 2024",
+                "file_type": "pdf"
+            },
+            {
+                "title": "Manuale di Implementazione Data Lineage",
+                "link": "https://example.com/files/data_lineage_manual.docx",
+                "summary": "Documento Word che descrive le best practice per implementare il data lineage nelle banche.",
+                "publisher": "Global Trade Watch",
+                "date": "25 Marzo 2024",
                 "file_type": "docx"
+            },
+            {
+                "title": "Statistiche sul Data Lineage",
+                "link": "https://example.com/files/data_lineage_stats.xlsx",
+                "summary": "Analisi statistica delle performance e dell'efficacia del data lineage nelle tabelle bancarie.",
+                "publisher": "Powerplexity Strategy",
+                "date": "30 Marzo 2024",
+                "file_type": "excel"
             },
         ]
 
@@ -257,9 +264,9 @@ with st.expander("🛠️ Fornisci Feedback", expanded=False):
 # --------------------- Sezione Domande Correlate ---------------------
 st.subheader("🔗 Domande Correlate")
 related_questions = [
-    "Qual è lo stato attuale del movimento Houthi?",
-    "Come sono impattate le rotte marittime del Mar Rosso dai recenti conflitti?",
-    "Chi sono i principali stakeholder nella situazione geopolitica del Mar Rosso?"
+    "Cos'è il data lineage e perché è importante per le banche?",
+    "Come implementare efficacemente il data lineage nelle tabelle bancarie?",
+    "Quali strumenti sono disponibili per monitorare il data lineage in un istituto bancario?"
 ]
 for question in related_questions:
     st.markdown(f"- {question}")
