@@ -1,14 +1,111 @@
 import streamlit as st
 
-# Page configuration
-st.set_page_config(page_title="Powerplexity Enhanced Chat", page_icon="💬", layout="wide")
+# --------------------- Custom CSS for Orange Theme ---------------------
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# Initialize session state for feedback selections
-if 'selected_feedback' not in st.session_state:
-    st.session_state['selected_feedback'] = []
+# Alternatively, inject CSS directly
+def inject_css():
+    st.markdown("""
+    <style>
+    /* Set the primary color to orange */
+    :root {
+        --primary-color: #F76C6C; /* Intensa Orange */
+        --secondary-color: #FFBA49;
+    }
 
-# Sidebar (optional)
+    /* Adjust the sidebar */
+    .css-1d391kg {
+        background-color: var(--primary-color);
+    }
+
+    /* Header and Title */
+    .css-1aumxhk {
+        color: var(--primary-color);
+    }
+
+    /* Buttons */
+    .stButton>button {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+    }
+
+    .stButton>button:hover {
+        background-color: #FFA500;
+        color: white;
+    }
+
+    /* Expander */
+    .css-1r6slb0 .streamlit-expanderHeader {
+        color: var(--primary-color);
+    }
+
+    /* Links */
+    a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+        color: #FFA500;
+    }
+
+    /* Footer */
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #f1f1f1;
+        color: #333;
+        text-align: center;
+        padding: 10px;
+    }
+
+    /* Checkbox Labels */
+    .stCheckbox label {
+        color: #333;
+    }
+
+    /* Text Inputs and Text Areas */
+    .stTextInput>div>div>input {
+        border-color: var(--primary-color);
+    }
+
+    .stTextArea>div>div>textarea {
+        border-color: var(--primary-color);
+    }
+
+    /* Download Buttons */
+    .stDownloadButton>button {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 16px;
+    }
+
+    .stDownloadButton>button:hover {
+        background-color: #FFA500;
+        color: white;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
+inject_css()
+
+# --------------------- Sidebar with Intesa Sanpaolo Logo ---------------------
 with st.sidebar:
+    # Add Intesa Sanpaolo Logo
+    logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Intesa_Sanpaolo_logo.svg/1200px-Intesa_Sanpaolo_logo.svg.png"  # Replace with your logo URL or local path
+    st.image(logo_url, use_column_width=True)
+    
     st.title("Powerplexity Chat")
     st.markdown("**Mockup Chat Application with Enhanced Features**")
     st.markdown("---")
@@ -16,7 +113,7 @@ with st.sidebar:
     st.button("Sources")
     st.button("Related Questions")
 
-# Main content: Chat Mockup
+# --------------------- Main Content ---------------------
 st.title("💬 Powerplexity Chat Enhanced Mockup")
 st.write("")
 
@@ -97,7 +194,7 @@ with st.expander("📚 Sources", expanded=False):
         source_markdown = f"""
         <div style="display: flex; align-items: center;">
             <img src="{icon_url}" alt="{source['file_type']} icon" style="width:24px;height:24px;margin-right:10px;">
-            <a href="{source['link']}" target="_blank" style="font-size: 18px; text-decoration: none; color: #2e7bcf;">{source['title']}</a>
+            <a href="{source['link']}" target="_blank" style="font-size: 18px; text-decoration: none; color: #F76C6C;">{source['title']}</a>
         </div>
         <div style="margin-left:34px;">
             <strong>Publisher:</strong> {source['publisher']}  
@@ -164,7 +261,7 @@ related_questions = [
 for question in related_questions:
     st.markdown(f"- {question}")
 
-# Footer Section
+# --------------------- Footer Section ---------------------
 st.markdown("""
 <style>
 .footer {
