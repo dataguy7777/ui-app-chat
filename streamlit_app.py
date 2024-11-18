@@ -90,6 +90,29 @@ def inject_css():
         color: white;
     }
 
+    /* Stile per le Chat */
+    .user-message {
+        background-color: #FFEBCC;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        max-width: 80%;
+        align-self: flex-end;
+    }
+
+    .assistant-message {
+        background-color: #D9EAD3;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        max-width: 80%;
+        align-self: flex-start;
+    }
+
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -102,6 +125,9 @@ if 'selected_feedback' not in st.session_state:
 
 if 'additional_feedback_expander' not in st.session_state:
     st.session_state['additional_feedback_expander'] = ""
+
+if 'chat_history' not in st.session_state:
+    st.session_state['chat_history'] = []  # Lista di tuple: (sender, message)
 
 # --------------------- Barra Laterale con Logo di Intesa Sanpaolo ---------------------
 with st.sidebar:
@@ -120,31 +146,46 @@ with st.sidebar:
 st.title("💬 Mockup Avanzato di Powerplexity Chat")
 st.write("")
 
-# Testo della risposta aggiornato a Data Lineage delle Tabelle Bancarie
-response = """
-Il **data lineage** rappresenta il tracciamento del flusso dei dati all'interno delle diverse tabelle e sistemi di una banca. Esso fornisce una visione chiara di come i dati vengono estratti, trasformati e caricati (ETL) attraverso i vari processi aziendali, garantendo trasparenza, tracciabilità e conformità normativa.
+# --------------------- Sezione Chatbot ---------------------
+st.header("Chatbot Data Lineage delle Tabelle Bancarie")
 
-### **Importanza del Data Lineage:**
-- **Trasparenza:** Consente di comprendere esattamente come i dati si muovono attraverso i sistemi.
-- **Qualità dei Dati:** Aiuta a identificare e correggere eventuali errori o incongruenze nei dati.
-- **Conformità Normativa:** Assicura che i processi di gestione dei dati rispettino le normative vigenti.
-- **Ottimizzazione dei Processi:** Facilita l'identificazione di inefficienze e aree di miglioramento nei flussi di dati.
+# Layout per la chat
+chat_placeholder = st.empty()
 
-### **Componenti Chiave:**
-1. **Origine dei Dati:** Tabelle e sistemi da cui i dati vengono estratti.
-2. **Processi di Trasformazione:** Operazioni di pulizia, aggregazione e manipolazione dei dati.
-3. **Destinazione dei Dati:** Tabelle e sistemi in cui i dati vengono caricati e utilizzati.
-4. **Metadati:** Informazioni contestuali sui dati, come definizioni di campo, regole di trasformazione e dipendenze.
+# Funzione per generare la risposta dell'assistente
+def generate_response(user_input):
+    """
+    Genera una risposta basata sull'input dell'utente.
+    In un'applicazione reale, questa funzione potrebbe integrare un modello NLP o altre logiche di business.
+    Per questo esempio, utilizzeremo una risposta predefinita basata sulle fonti.
+    """
+    # Per semplicità, la risposta sarà una sintesi delle informazioni di data lineage
+    response = """
+    Il **data lineage** nelle banche rappresenta il tracciamento dettagliato del flusso dei dati attraverso le varie tabelle e sistemi. Questo processo è fondamentale per garantire la trasparenza, la qualità e la conformità dei dati. Le principali componenti includono l'origine dei dati, i processi di trasformazione e le destinazioni finali. Implementare un efficace data lineage permette di identificare e correggere errori, ottimizzare i processi e assicurare il rispetto delle normative vigenti.
+    """
+    return response
 
-### **Benefici Principali:**
-- **Riduzione dei Rischi:** Minimizza il rischio di errori nei processi decisionali basati sui dati.
-- **Miglioramento dell'Efficienza:** Automatizza il tracciamento dei dati, riducendo il carico di lavoro manuale.
-- **Supporto alla Governance dei Dati:** Facilita la gestione e il controllo dei dati aziendali.
+# Campo di input per l'utente
+with st.form(key='chat_form', clear_on_submit=True):
+    user_input = st.text_input("Tu:", "")
+    submit_button = st.form_submit_button(label='Invia')
 
-Attraverso un'efficace implementazione del data lineage, le banche possono migliorare significativamente la gestione dei loro dati, garantendo operazioni più sicure, efficienti e conformi.
-"""
+    if submit_button and user_input:
+        # Aggiungi la domanda dell'utente alla cronologia
+        st.session_state.chat_history.append(("user", user_input))
+        
+        # Genera la risposta dell'assistente
+        assistant_response = generate_response(user_input)
+        st.session_state.chat_history.append(("assistant", assistant_response))
 
-st.markdown(response)
+# Visualizza la cronologia della chat
+if st.session_state.chat_history:
+    with chat_placeholder.container():
+        for sender, message in st.session_state.chat_history:
+            if sender == "user":
+                st.markdown(f'<div class="user-message">{message}</div>', unsafe_allow_html=True)
+            else:
+                st.markdown(f'<div class="assistant-message">{message}</div>', unsafe_allow_html=True)
 
 # --------------------- Sezione Fonti con Icone Realistiche ---------------------
 with st.expander("📚 Fonti", expanded=False):
