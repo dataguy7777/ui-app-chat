@@ -1,6 +1,13 @@
 import streamlit as st
 
-# --------------------- Iniezione CSS Personalizzato per Tema Arancione ---------------------
+# --------------------- Impostazione della Configurazione della Pagina ---------------------
+st.set_page_config(
+    page_title="Powerplexity Chatbot",
+    page_icon="💬",
+    layout="wide"  # Imposta il layout su wide
+)
+
+# --------------------- Iniezione CSS Personalizzato per Tema Arancione e Chat ---------------------
 def inject_css():
     st.markdown("""
     <style>
@@ -135,15 +142,15 @@ with st.sidebar:
     logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Intesa_Sanpaolo_logo.svg/1200px-Intesa_Sanpaolo_logo.svg.png"  # Sostituisci con l'URL del tuo logo o il percorso locale
     st.image(logo_url, use_column_width=True)
     
-    st.title("Powerplexity Chat")
-    st.markdown("**Applicazione di Chat Mockup con Funzionalità Avanzate**")
+    st.title("Powerplexity Chatbot")
+    st.markdown("**Applicazione di Chatbot con Funzionalità Avanzate**")
     st.markdown("---")
     st.markdown("🔍 **Esplora**")
     st.button("Fonti")
     st.button("Domande Correlate")
 
 # --------------------- Contenuto Principale ---------------------
-st.title("💬 Mockup Avanzato di Powerplexity Chat")
+st.title("💬 Mockup Avanzato di Powerplexity Chatbot")
 st.write("")
 
 # --------------------- Sezione Chatbot ---------------------
@@ -161,31 +168,35 @@ def generate_response(user_input):
     """
     # Per semplicità, la risposta sarà una sintesi delle informazioni di data lineage
     response = """
-    Il **data lineage** nelle banche rappresenta il tracciamento dettagliato del flusso dei dati attraverso le varie tabelle e sistemi. Questo processo è fondamentale per garantire la trasparenza, la qualità e la conformità dei dati. Le principali componenti includono l'origine dei dati, i processi di trasformazione e le destinazioni finali. Implementare un efficace data lineage permette di identificare e correggere errori, ottimizzare i processi e assicurare il rispetto delle normative vigenti.
+    Il **data lineage** nelle banche rappresenta il tracciamento dettagliato del flusso dei dati attraverso le varie tabelle e sistemi. Questo processo è fondamentale per garantire trasparenza, qualità e conformità dei dati. Le principali componenti includono l'origine dei dati, i processi di trasformazione e le destinazioni finali. Implementare un efficace data lineage permette di identificare e correggere errori, ottimizzare i processi e assicurare il rispetto delle normative vigenti.
     """
     return response
 
-# Campo di input per l'utente
-with st.form(key='chat_form', clear_on_submit=True):
-    user_input = st.text_input("Tu:", "")
-    submit_button = st.form_submit_button(label='Invia')
-
-    if submit_button and user_input:
-        # Aggiungi la domanda dell'utente alla cronologia
-        st.session_state.chat_history.append(("user", user_input))
-        
-        # Genera la risposta dell'assistente
-        assistant_response = generate_response(user_input)
-        st.session_state.chat_history.append(("assistant", assistant_response))
-
 # Visualizza la cronologia della chat
-if st.session_state.chat_history:
-    with chat_placeholder.container():
-        for sender, message in st.session_state.chat_history:
-            if sender == "user":
-                st.markdown(f'<div class="user-message">{message}</div>', unsafe_allow_html=True)
-            else:
-                st.markdown(f'<div class="assistant-message">{message}</div>', unsafe_allow_html=True)
+def display_chat():
+    if st.session_state.chat_history:
+        with chat_placeholder.container():
+            for sender, message in st.session_state.chat_history:
+                if sender == "user":
+                    st.markdown(f'<div class="user-message">{message}</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown(f'<div class="assistant-message">{message}</div>', unsafe_allow_html=True)
+
+display_chat()
+
+# Campo di input per l'utente
+user_input = st.chat_input("Tu:")
+
+if user_input:
+    # Aggiungi la domanda dell'utente alla cronologia
+    st.session_state.chat_history.append(("user", user_input))
+    
+    # Genera la risposta dell'assistente
+    assistant_response = generate_response(user_input)
+    st.session_state.chat_history.append(("assistant", assistant_response))
+    
+    # Aggiorna la visualizzazione della chat
+    display_chat()
 
 # --------------------- Sezione Fonti con Icone Realistiche ---------------------
 with st.expander("📚 Fonti", expanded=False):
@@ -294,12 +305,14 @@ with st.expander("🛠️ Fornisci Feedback", expanded=False):
                 st.success("Grazie per il tuo feedback!")
                 # Resetta lo stato del feedback
                 st.session_state['selected_feedback'] = []
+                st.session_state['additional_feedback_expander'] = ""
                 st.experimental_rerun()
             else:
                 st.warning("Per favore, seleziona almeno un'opzione di feedback.")
     with submit_cancel_cols[1]:
         if st.button("Annulla Feedback", key="cancel_feedback_expander"):
             st.session_state['selected_feedback'] = []
+            st.session_state['additional_feedback_expander'] = ""
             st.experimental_rerun()
 
 # --------------------- Sezione Domande Correlate ---------------------
