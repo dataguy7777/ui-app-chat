@@ -33,43 +33,80 @@ st.markdown(response)
 
 # Roll/Unroll all sources using st.expander (without nesting)
 with st.expander("📚 Sources", expanded=False):
-    st.markdown("These are the sources for the information provided in the response above. Expand to view the sources:")
+    st.markdown("These are the files providing detailed information related to the response above. Expand to view the sources:")
 
-    # Function to simulate retrieving sources
+    # Function to simulate retrieving file sources
     def get_sources():
         return [
             {
-                "title": "Red Sea crisis - Wikipedia",
-                "link": "https://en.wikipedia.org/wiki/Red_Sea_crisis",
-                "summary": "The Red Sea crisis began in October 2023, involving Houthi movements in Yemen launching attacks at Israel.",
-                "publisher": "Wikipedia",
-                "date": "October 19, 2023"
+                "title": "Red Sea Crisis Data Analysis",
+                "link": "https://example.com/files/red_sea_crisis_data.xlsx",
+                "summary": "Comprehensive data analysis of the Red Sea crisis events since October 2023.",
+                "publisher": "Powerplexity Analytics",
+                "date": "October 19, 2023",
+                "file_type": "excel"
             },
             {
-                "title": "Houthi Red Sea attacks still torment global trade, a year after October 7",
-                "link": "https://www.aljazeera.com/news/houthi-red-sea-attacks",
-                "summary": "Yemen's rebel group has launched over 130 attacks in the Red Sea since October 7.",
-                "publisher": "Al Jazeera",
-                "date": "October 7, 2024"
+                "title": "Houthi Movement Impact Report",
+                "link": "https://example.com/files/houthi_impact_report.pdf",
+                "summary": "Detailed report on the Houthi movement's activities and their impact on regional stability.",
+                "publisher": "Middle East Research Institute",
+                "date": "October 7, 2024",
+                "file_type": "pdf"
             },
             {
-                "title": "Who are the Houthis and why are they attacking Red Sea ships?",
-                "link": "https://www.bbc.com/news/houthis-red-sea",
-                "summary": "The Houthis have launched over 40 attacks on commercial ships in the Red Sea and Gulf of Aden.",
-                "publisher": "BBC",
-                "date": "November 1, 2023"
+                "title": "Maritime Trade Disruption Statistics",
+                "link": "https://example.com/files/maritime_trade_stats.xlsx",
+                "summary": "Statistical overview of maritime trade disruptions in the Red Sea and Gulf of Aden.",
+                "publisher": "Global Trade Watch",
+                "date": "November 1, 2023",
+                "file_type": "excel"
+            },
+            {
+                "title": "Red Sea Crisis Presentation",
+                "link": "https://example.com/files/red_sea_crisis_presentation.pptx",
+                "summary": "Presentation slides detailing the key aspects of the Red Sea crisis.",
+                "publisher": "Powerplexity Strategy",
+                "date": "December 5, 2023",
+                "file_type": "pptx"
+            },
+            {
+                "title": "Houthi Operations Overview",
+                "link": "https://example.com/files/houthi_operations.docx",
+                "summary": "Word document outlining the operations of the Houthi movement in the Red Sea region.",
+                "publisher": "Middle East Analysis Group",
+                "date": "January 10, 2024",
+                "file_type": "docx"
             },
         ]
 
     sources = get_sources()
 
-    # Displaying each source without nested expanders
+    # Mapping of file types to realistic icons
+    file_icons = {
+        "excel": "https://img.icons8.com/color/48/000000/microsoft-excel-2019--v1.png",
+        "pdf": "https://img.icons8.com/color/48/000000/pdf-2--v1.png",
+        "pptx": "https://img.icons8.com/color/48/000000/microsoft-powerpoint-2019--v1.png",
+        "docx": "https://img.icons8.com/color/48/000000/microsoft-word-2019--v1.png"
+    }
+
+    # Displaying each source with appropriate file icon and mock file link
     for source in sources:
-        st.markdown(f"### 🔗 [{source['title']}]({source['link']})")
-        st.markdown(f"**Publisher**: {source['publisher']}")
-        st.markdown(f"**Date**: {source['date']}")
-        st.markdown(f"**Summary**: {source['summary']}")
-        st.markdown("---")
+        icon_url = file_icons.get(source["file_type"], "https://img.icons8.com/ios-filled/50/000000/file.png")  # Default icon if file type not found
+        # Construct the markdown with the icon and the clickable title
+        source_markdown = f"""
+        <div style="display: flex; align-items: center;">
+            <img src="{icon_url}" alt="{source['file_type']} icon" style="width:24px;height:24px;margin-right:10px;">
+            <a href="{source['link']}" target="_blank" style="font-size: 18px; text-decoration: none; color: #2e7bcf;">{source['title']}</a>
+        </div>
+        <div style="margin-left:34px;">
+            <strong>Publisher:</strong> {source['publisher']}  
+            <strong>Date:</strong> {source['date']}  
+            <strong>Summary:</strong> {source['summary']}
+        </div>
+        <hr style="border: 0; height: 1px; background-color: #ccc; margin: 10px 0;">
+        """
+        st.markdown(source_markdown, unsafe_allow_html=True)
 
 # Feedback Section using st.expander
 with st.expander("🛠️ Provide Feedback", expanded=False):
@@ -145,4 +182,3 @@ st.markdown("""
     <p>© 2024 Powerplexity. All rights reserved.</p>
 </div>
 """, unsafe_allow_html=True)
-
