@@ -4,7 +4,6 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
 
-# Set a nice page title and icon outside main
 st.set_page_config(page_title="Chatbot Mockup", page_icon="🤖")
 
 def main():
@@ -16,21 +15,15 @@ def main():
     3. Ask for the user's email address.
     Finally, it displays the collected information in a neat format.
 
-    Example:
-        User flow:
-        - Input name: "John Doe"
-        - Select option: "Option B"
-        - Input email: "john.doe@example.com"
-        - App displays all collected data
+    Flow:
+        - The interface updates dynamically as the user provides each piece of info.
+        - Once the name is given, the dropdown appears.
+        - Once the dropdown choice is made, the email input appears.
+        - Once the email is given, the summary is displayed.
 
     Returns:
         None
     """
-
-    # Initialize session state variables if not present
-    if 'step' not in st.session_state:
-        st.session_state.step = 1
-        logging.info("Starting conversation at step 1.")
 
     if 'name_input' not in st.session_state:
         st.session_state.name_input = ''
@@ -43,44 +36,40 @@ def main():
     st.write("---")
 
     # Step 1: Ask for the user's name
-    if st.session_state.step == 1:
-        st.write("Hello! I'm here to help. Let's get started by getting to know you.")
-        name = st.text_input("1️⃣ What's your name?", value=st.session_state.name_input)
-        if name.strip():
-            st.session_state.name_input = name.strip()
-            logging.info(f"User entered name: {st.session_state.name_input}")
-            st.session_state.step = 2
+    st.write("Hello! I'm here to help. Let's get started by getting to know you.")
+    st.session_state.name_input = st.text_input("1️⃣ What's your name?", value=st.session_state.name_input)
 
-    # Step 2: Ask the user to select from a dropdown
-    elif st.session_state.step == 2:
+    # Proceed only if name is provided
+    if st.session_state.name_input.strip():
+        logging.info(f"User entered name: {st.session_state.name_input}")
         st.write(f"Nice to meet you, **{st.session_state.name_input}**! Let's proceed.")
+
+        # Step 2: Ask the user to select from a dropdown
         options = ["Option A", "Option B", "Option C"]
-        selection = st.selectbox("2️⃣ Please select an option from the list:", options, index=options.index(st.session_state.selection_input) if st.session_state.selection_input in options else 0)
-        if selection:
-            st.session_state.selection_input = selection
+        st.session_state.selection_input = st.selectbox("2️⃣ Please select an option from the list:",
+                                                        options,
+                                                        index=options.index(st.session_state.selection_input) if st.session_state.selection_input in options else 0)
+
+        if st.session_state.selection_input:
             logging.info(f"User selected: {st.session_state.selection_input}")
-            st.session_state.step = 3
+            st.write(f"Great choice, **{st.session_state.selection_input}** is quite popular!")
 
-    # Step 3: Ask for the user's email
-    elif st.session_state.step == 3:
-        st.write(f"Great choice, **{st.session_state.selection_input}** is quite popular!")
-        email = st.text_input("3️⃣ Could you please provide your email address?", value=st.session_state.email_input)
-        if email.strip():
-            st.session_state.email_input = email.strip()
-            logging.info(f"User entered email: {st.session_state.email_input}")
-            st.session_state.step = 4
+            # Step 3: Ask for the user's email
+            st.session_state.email_input = st.text_input("3️⃣ Could you please provide your email address?", value=st.session_state.email_input)
 
-    # Step 4: Display all the collected information
-    elif st.session_state.step == 4:
-        st.success("🎉 Thank you for providing all the information!")
-        st.write("Here is what you've shared with me:")
-        st.write(f"**Name:** {st.session_state.name_input}")
-        st.write(f"**Selected Option:** {st.session_state.selection_input}")
-        st.write(f"**Email:** {st.session_state.email_input}")
-        logging.info("User conversation completed.")
+            if st.session_state.email_input.strip():
+                logging.info(f"User entered email: {st.session_state.email_input}")
 
-        st.write("---")
-        st.info("If you wish to start over, please refresh the app.")
+                # Step 4: Display all the collected information
+                st.success("🎉 Thank you for providing all the information!")
+                st.write("Here is what you've shared with me:")
+                st.write(f"**Name:** {st.session_state.name_input}")
+                st.write(f"**Selected Option:** {st.session_state.selection_input}")
+                st.write(f"**Email:** {st.session_state.email_input}")
+                logging.info("User conversation completed.")
+
+                st.write("---")
+                st.info("If you wish to start over, please refresh the app.")
 
 if __name__ == "__main__":
     main()
